@@ -1,0 +1,42 @@
+<!DOCTYPE HTML>
+<html lang="uk">
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <!--  Title  -->
+    <title>Кадастровий пошук</title>
+
+    <!--  Favicon  -->
+    <link rel="icon" href="/static/grosland/images/favicon.png" type="Image/x-icon" >
+
+    <!--  Leaflet  -->
+    <link rel="stylesheet" href="/static/leaflet/leaflet.css">
+    <script src="/static/leaflet/leaflet.js"></script>
+
+    <!--  Jquery  -->
+    <script src="/static/jquery/jquery.3.7.1.min.js"></script>
+    <script src="/static/jquery/jquery.ajax.min.js"></script>
+    <script src="/static/jquery/jquery.maskedinput.min.js"></script>
+
+    <!--  My .css  -->
+    <link rel="stylesheet" href="/static/grosland/grosland.main.css" type="text/css">
+
+    <!--  Leaflet Vector Grid  -->
+    <script src="/static/vectorgrid/leaflet.vectorgrid.mins.js"></script>
+  </head>
+
+  <body>
+    <!--  Field for input cadastral number  -->
+    <form id="input">
+      <input type="text" id="cadnum" placeholder="__________:__:___:____">
+    </form>
+
+    <!--  Map -->
+    <div id="map"></div>
+  </body>
+
+  <!--  My .js  -->
+  <script src="/static/grosland/grosland.leaflet.map.js"></script>
+  <script src="/static/grosland/grosland.jquery.maskedinput.cadnum.js"></script>
+</html>
