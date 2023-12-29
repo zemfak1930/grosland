@@ -1,15 +1,10 @@
-<!DOCTYPE HTML>
-<html lang="uk">
-  <head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+{% extends "base.html" %}
 
-    <!--  Title  -->
-    <title>Кадастровий пошук</title>
+{% block title %}
+    Карта
+{% endblock title %}
 
-    <!--  Favicon  -->
-    <link rel="icon" href="/static/grosland/images/favicon.png" type="Image/x-icon" >
-
+{% block link %}
     <!--  Leaflet  -->
     <link rel="stylesheet" href="/static/leaflet/leaflet.css">
     <script src="/static/leaflet/leaflet.js"></script>
@@ -24,9 +19,9 @@
 
     <!--  Leaflet Vector Grid  -->
     <script src="/static/vectorgrid/leaflet.vectorgrid.mins.js"></script>
-  </head>
+{% endblock link %}
 
-  <body>
+{% block content %}
     <!--  Field for input cadastral number  -->
     <form id="input">
       <input type="text" id="cadnum" placeholder="__________:__:___:____">
@@ -34,9 +29,10 @@
 
     <!--  Map -->
     <div id="map"></div>
-  </body>
+{% endblock %}
 
-  <!--  My .js  -->
-  <script src="/static/grosland/grosland.leaflet.map.js"></script>
-  <script src="/static/grosland/grosland.jquery.maskedinput.cadnum.js"></script>
-</html>
+{% block script %}
+    <!--  My .js  -->
+    <script src="/static/grosland/grosland.leaflet.map.js"></script>
+    <script src="/static/grosland/grosland.jquery.maskedinput.cadnum.js"></script>
+{% endblock %}
