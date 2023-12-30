@@ -17,7 +17,7 @@ function createStyle(desiredFillColor='#87CEEB', desiredOpacity=0.4) {
 
 //  Map of Leaflet -----------------------------------------------------------------------------------------------------
 var map = L.map('map', {
-    center: [48.5, 33.0],
+    center: [49.02, 31.48],
     zoom: 6,
     minZoom: 6,
     maxZoom: 18,
