@@ -27,7 +27,7 @@ map.doubleClickZoom.disable();
 
 //  Vector Tile --------------------------------------------------------------------------------------------------------
 var kadastrMap = L.vectorGrid.protobuf(
-    'http://45.94.157.127:8080/geoserver/gwc/service/tms/1.0.0/grosland:cadastre@EPSG%3A900913@pbf/{z}/{x}/{-y}.pbf', {
+    'https://grosland.fun/geoserver/gwc/service/tms/1.0.0/grosland:cadastre@EPSG%3A900913@pbf/{z}/{x}/{-y}.pbf', {
         minZoom: 14,
         maxZoom: 18,
         interactive: true,
