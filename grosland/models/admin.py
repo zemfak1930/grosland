@@ -48,8 +48,8 @@ class LandView(ModelView):
 
 
 class CadastreView(ModelView):
-    column_list = ("id", "cadnum", "area", "ownership", "category", "purpose", "address",)
-    form_columns = ("cadnum", "area", "ownership", "category", "purpose", "address",)
+    column_list = ("id", "cadnum", "area", "ownership", "purpose.category", "purpose", "address",)
+    form_columns = ("cadnum", "area", "ownership", "purpose", "address",)
 
 
 class ArchiveView(CadastreView):

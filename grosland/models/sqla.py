@@ -31,7 +31,7 @@ class CodeDescMixin:
 
 class GeometryMixin:
     area = Column(DECIMAL(8, 4), nullable=False)
-    address = Column(String(255), nullable=False)
+    address = Column(String(255))
     geometry = Column(Geometry(geometry_type="MULTIPOLYGON", srid=4326), nullable=False)
 
 
@@ -47,14 +47,6 @@ class ParametersMixin:
         return relationship("Ownership", backref=backref(self.__tablename__))
 
     @declared_attr
-    def category_code(self):
-        return Column(String(3), ForeignKey("category.code"), nullable=False)
-
-    @declared_attr
-    def category(self):
-        return relationship("Category", backref=backref(self.__tablename__))
-
-    @declared_attr
     def purpose_code(self):
         return Column(String(5), ForeignKey("purpose.code"), nullable=False)
 
@@ -64,6 +56,16 @@ class ParametersMixin:
 
     def __str__(self):
         return self.cadnum
+
+
+class CategoryMixin:
+    @declared_attr
+    def category_code(self):
+        return Column(String(3), ForeignKey("category.code"), nullable=False)
+
+    @declared_attr
+    def category(self):
+        return relationship("Category", backref=backref(self.__tablename__))
 
 
 #   Users --------------------------------------------------------------------------------------------------------------
@@ -94,10 +96,7 @@ class UsersRoles(Base):
 
 
 #   Layers -------------------------------------------------------------------------------------------------------------
-class Land(Base, GeometryMixin):
-    category_code = Column(String(3), ForeignKey("category.code"), nullable=False)
-    category = relationship("Category", backref=backref(__name__.lower()))
-
+class Land(Base, GeometryMixin, CategoryMixin):
     def __str__(self):
         return self.id + " - " + self.area + " га"
 
@@ -119,7 +118,7 @@ class Category(Base, CodeDescMixin):
     pass
 
 
-class Purpose(Base, CodeDescMixin):
+class Purpose(Base, CodeDescMixin, CategoryMixin):
     pass
 
 
