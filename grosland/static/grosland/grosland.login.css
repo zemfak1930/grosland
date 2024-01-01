@@ -40,8 +40,9 @@ input {
   //box-shadow: 0 0 1rem rgba(0,0,0,0.3);
   min-height: 10rem;
   margin: auto;
-  max-width: 50%;
+  max-width: 70%;
   padding: .5rem;
+  width: 300px;
 }
 
 .login-text {
@@ -85,6 +86,7 @@ input {
   min-width: 1px;
   padding: .25rem;
   transition: 250ms background ease-in;
+  width: 70px;
   &:hover, &:focus {
     background: white;
     color: black;

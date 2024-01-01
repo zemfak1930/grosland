@@ -20,15 +20,15 @@
             </span>
         </p>
 
-        <input type="email" class="login-username" autofocus="true" required="true" placeholder="Email" name="email"/>
+        <input type="email" class="login-username" autofocus="true" required="true" placeholder="Логін" name="email"/>
 
         <div class="fs-gap">
-            <input type="password" class="login-password" required="true" placeholder="Password" name="password"/>
+            <input type="password" class="login-password" required="true" placeholder="Пароль" name="password"/>
         </div>
 
         {{ render_field_errors(login_user_form.csrf_token) }}
 
-        <input type="submit" value="Login" class="login-submit" name="submit"/>
+        <input type="submit" value="Увійти" class="login-submit" name="submit"/>
     </form>
 
     <div class="underlay-photo"></div>
