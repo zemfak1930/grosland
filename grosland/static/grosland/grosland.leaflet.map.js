@@ -90,7 +90,6 @@ $(document).ready(function() {
         //
         let cadnum = $('#cadnum').val();
 
-
         //
         if (coordinates.has(cadnum) === false) {
             //  The request itself
@@ -103,27 +102,27 @@ $(document).ready(function() {
                 async:false,
             })
 
-
             //  Actions after
             .done(function(data){
                 coordinates.set(cadnum, data.coordinates);
             });
         }
 
-
-        //
-        map.fitBounds(L.geoJSON({
-            "type": "FeatureCollection",
-            "features": [{
-                "type": "Feature",
-                "geometry": {
-                    "type": "MultiPolygon",
-                    "coordinates": coordinates.get(cadnum),
-                }
-            }],
-        })
-        .getBounds());
-
+        if (coordinates.get(cadnum) !== undefined) {
+            map.fitBounds(L.geoJSON({
+                "type": "FeatureCollection",
+                "features": [{
+                    "type": "Feature",
+                    "geometry": {
+                        "type": "MultiPolygon",
+                        "coordinates": coordinates.get(cadnum),
+                    }
+                }],
+            })
+            .getBounds());
+        } else {
+            window.alert('Земельна ділянка з кадастровим номером ' + cadnum + ' відсутня.')
+        }
 
         // Reset browser settings
         event.preventDefault();
