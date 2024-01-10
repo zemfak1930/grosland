@@ -25,8 +25,8 @@ var map = L.map('map', {
 map.doubleClickZoom.disable();
 
 
-//  Vector Tile --------------------------------------------------------------------------------------------------------
-var kadastrMap = L.vectorGrid.protobuf(
+//  Cadastre Map -------------------------------------------------------------------------------------------------------
+var cadastreMap = L.vectorGrid.protobuf(
     'https://grosland.fun/geoserver/gwc/service/tms/1.0.0/grosland:cadastre@EPSG%3A900913@pbf/{z}/{x}/{-y}.pbf', {
         minZoom: 14,
         maxZoom: 18,
@@ -39,9 +39,9 @@ var kadastrMap = L.vectorGrid.protobuf(
 )
 
 
-//  Set plot style
+//  Set cadastre style
 .on('click', function(event) {
-    //  Get properties of plot
+    //  Get properties of cadastre
     if (event.layer.feature) {
         var properties = event.layer.feature.properties;
     } else {
@@ -49,9 +49,9 @@ var kadastrMap = L.vectorGrid.protobuf(
     };
 
 
-    //  Set default style
+    //  Set default cadastre style
     if (properties != 0) {
-        kadastrMap.setFeatureStyle(cadnum, createStyle())
+        cadastreMap.setFeatureStyle(cadnum, createStyle())
     };
 
 
@@ -59,8 +59,8 @@ var kadastrMap = L.vectorGrid.protobuf(
     cadnum = properties.cadnum;
 
 
-    //  Set style for selected plot
-    kadastrMap.setFeatureStyle(cadnum, createStyle(desiredFillColor='#87CEEB', desiredOpacity=0.8));
+    //  Set style for selected cadastre
+    cadastreMap.setFeatureStyle(cadnum, createStyle(desiredFillColor='#87CEEB', desiredOpacity=0.8));
 
 
     let tooltip = L.tooltip()
@@ -69,7 +69,51 @@ var kadastrMap = L.vectorGrid.protobuf(
     .addTo(map);
 })
 .on('dblclick', function() { window.open('https://e.land.gov.ua/back/cadaster/?cad_num=' + cadnum, '_blank') })
-.addTo(map);
+
+
+//  Archive Map --------------------------------------------------------------------------------------------------------
+var archiveMap = L.vectorGrid.protobuf(
+    'https://grosland.fun/geoserver/gwc/service/tms/1.0.0/grosland:archive@EPSG%3A900913@pbf/{z}/{x}/{-y}.pbf', {
+        minZoom: 14,
+        maxZoom: 18,
+        interactive: true,
+        getFeatureId: function(feature) { return feature.properties.cadnum },
+        vectorTileLayerStyles: {
+            archive: createStyle(desiredFillColor='#CD5C5C', desiredOpacity=0.4),
+        },
+    }
+)
+
+
+//  Set archive style
+.on('click', function(event) {
+    //  Get properties of archive
+    if (event.layer.feature) {
+        var properties = event.layer.feature.properties;
+    } else {
+        var properties = event.layer.properties;
+    };
+
+
+    //  Set default archive style
+    if (properties != 0) {
+        archiveMap.setFeatureStyle(cadnum, createStyle(desiredFillColor='#CD5C5C', desiredOpacity=0.4))
+    };
+
+
+    //  Override ID
+    cadnum = properties.cadnum;
+
+
+    //  Set style for selected archive
+    archiveMap.setFeatureStyle(cadnum, createStyle(desiredFillColor='#CD5C5C', desiredOpacity=0.8));
+
+
+    let tooltip = L.tooltip()
+    .setLatLng(event.latlng)
+    .setContent('<p>Кадастровий номер: ' + cadnum + '</p>', { className: "tooltip" })
+    .addTo(map);
+})
 
 
 //  LayerControl -------------------------------------------------------------------------------------------------------
@@ -79,7 +123,8 @@ L.control.layers({
     'EsriMap': L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'),
 }, {
     // overlayMaps
-    'Кадастр': kadastrMap,
+    'Кадастр': cadastreMap.addTo(map),
+    'Архів': archiveMap,
 }).addTo(map);
 
 
