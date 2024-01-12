@@ -1,7 +1,6 @@
 //  Coordinates of plots -----------------------------------------------------------------------------------------------
 var coordinates = new Map();
 
-
 //  Create style -------------------------------------------------------------------------------------------------------
 function createStyle(desiredFillColor='#87CEEB', desiredOpacity=0.4) {
     return {
@@ -14,7 +13,6 @@ function createStyle(desiredFillColor='#87CEEB', desiredOpacity=0.4) {
     }
 };
 
-
 //  Map of Leaflet -----------------------------------------------------------------------------------------------------
 var map = L.map('map', {
     center: [48.5, 31.5],
@@ -23,7 +21,6 @@ var map = L.map('map', {
     maxZoom: 18,
 })
 map.doubleClickZoom.disable();
-
 
 //  Cadastre Map -------------------------------------------------------------------------------------------------------
 var cadastreMap = L.vectorGrid.protobuf(
@@ -37,9 +34,6 @@ var cadastreMap = L.vectorGrid.protobuf(
         },
     }
 )
-
-
-//  Set cadastre style
 .on('click', function(event) {
     //  Get properties of cadastre
     if (event.layer.feature) {
@@ -48,20 +42,16 @@ var cadastreMap = L.vectorGrid.protobuf(
         var properties = event.layer.properties;
     };
 
-
     //  Set default cadastre style
     if (properties != 0) {
         cadastreMap.setFeatureStyle(cadnum, createStyle())
     };
 
-
     //  Override ID
     cadnum = properties.cadnum;
 
-
     //  Set style for selected cadastre
     cadastreMap.setFeatureStyle(cadnum, createStyle(desiredFillColor='#87CEEB', desiredOpacity=0.8));
-
 
     let tooltip = L.tooltip()
     .setLatLng(event.latlng)
@@ -69,7 +59,6 @@ var cadastreMap = L.vectorGrid.protobuf(
     .addTo(map);
 })
 .on('dblclick', function() { window.open('https://e.land.gov.ua/back/cadaster/?cad_num=' + cadnum, '_blank') })
-
 
 //  Archive Map --------------------------------------------------------------------------------------------------------
 var archiveMap = L.vectorGrid.protobuf(
@@ -83,9 +72,6 @@ var archiveMap = L.vectorGrid.protobuf(
         },
     }
 )
-
-
-//  Set archive style
 .on('click', function(event) {
     //  Get properties of archive
     if (event.layer.feature) {
@@ -94,27 +80,22 @@ var archiveMap = L.vectorGrid.protobuf(
         var properties = event.layer.properties;
     };
 
-
     //  Set default archive style
     if (properties != 0) {
         archiveMap.setFeatureStyle(cadnum, createStyle(desiredFillColor='#CD5C5C', desiredOpacity=0.4))
     };
 
-
     //  Override ID
     cadnum = properties.cadnum;
 
-
     //  Set style for selected archive
     archiveMap.setFeatureStyle(cadnum, createStyle(desiredFillColor='#CD5C5C', desiredOpacity=0.8));
-
 
     let tooltip = L.tooltip()
     .setLatLng(event.latlng)
     .setContent('<p>Кадастровий номер: ' + cadnum + '</p>', { className: "tooltip" })
     .addTo(map);
 })
-
 
 //  LayerControl -------------------------------------------------------------------------------------------------------
 L.control.layers({
@@ -126,7 +107,6 @@ L.control.layers({
     'Кадастр': cadastreMap.addTo(map),
     'Архів': archiveMap,
 }).addTo(map);
-
 
 //  Search cadnum in .db -----------------------------------------------------------------------------------------------
 $(document).ready(function() {
@@ -146,12 +126,11 @@ $(document).ready(function() {
                 url: '/',
                 async:false,
             })
-
             //  Actions after
             .done(function(data){
                 coordinates.set(cadnum, data.coordinates);
             });
-        }
+        };
 
         if (coordinates.get(cadnum) !== undefined) {
             map.fitBounds(L.geoJSON({
@@ -167,7 +146,7 @@ $(document).ready(function() {
             .getBounds());
         } else {
             window.alert('Земельна ділянка з кадастровим номером ' + cadnum + ' відсутня.')
-        }
+        };
 
         // Reset browser settings
         event.preventDefault();

@@ -13,6 +13,9 @@ __all__ = [
 
 #   Base ---------------------------------------------------------------------------------------------------------------
 class Base(DeclarativeBase):
+    """
+        Base class for used in some models.
+    """
     id = Column(Integer, primary_key=True)
 
     @declared_attr
@@ -22,6 +25,9 @@ class Base(DeclarativeBase):
 
 #   Mixin --------------------------------------------------------------------------------------------------------------
 class CodeDescMixin:
+    """
+        Adds code and description in some models.
+    """
     code = Column(String, unique=True, nullable=False)
     desc = Column(String, nullable=False)
 
@@ -30,12 +36,18 @@ class CodeDescMixin:
 
 
 class GeometryMixin:
+    """
+        Base parameters for all polygonal objects.
+    """
     area = Column(DECIMAL(8, 4), nullable=False)
     address = Column(String(255))
     geometry = Column(Geometry(geometry_type="MULTIPOLYGON", srid=4326), nullable=False)
 
 
 class ParametersMixin:
+    """
+        Additional parameters for main polygonal objects.
+    """
     cadnum = Column(String(22), unique=True, nullable=False)
 
     @declared_attr
@@ -59,6 +71,9 @@ class ParametersMixin:
 
 
 class CategoryMixin:
+    """
+        Additional parameters for all polygonal objects.
+    """
     @declared_attr
     def category_code(self):
         return Column(String(3), ForeignKey("category.code"), nullable=False)
@@ -70,6 +85,10 @@ class CategoryMixin:
 
 #   Users --------------------------------------------------------------------------------------------------------------
 class Users(Base, UserMixin):
+    """
+         The model is used for CRUD user data.
+         Used for authenticate.
+    """
     name = Column(String, nullable=False)
     surname = Column(String, nullable=False)
     tel = Column(String)
@@ -87,44 +106,77 @@ class Users(Base, UserMixin):
 
 
 class Roles(Base, RoleMixin, CodeDescMixin):
+    """
+        The model defines roles for users.
+    """
     name = Column(String, unique=True, nullable=False)
 
 
 class UsersRoles(Base):
+    """
+        The model links users roles.
+    """
     user_id = Column("user_id", Integer, ForeignKey("users.id"))
     role_id = Column("role_id", Integer, ForeignKey("roles.id"))
 
 
 #   Layers -------------------------------------------------------------------------------------------------------------
 class Land(Base, GeometryMixin, CategoryMixin):
+    """
+        Polygonal object.
+        Describes a plot of land without a cadastral number.
+    """
     def __str__(self):
         return self.id + " - " + self.area + " га"
 
 
 class Cadastre(Base, GeometryMixin, ParametersMixin):
+    """
+        Main polygonal object.
+        Describes a plot of lands with actual land cadastre data.
+    """
     pass
 
 
 class Archive(Base, GeometryMixin, ParametersMixin):
+    """
+        Main polygonal object.
+        Describes a plot of lands with archive land cadastre data.
+    """
     pass
 
 
 #   Parameters ---------------------------------------------------------------------------------------------------------
 class Ownership(Base, CodeDescMixin):
+    """
+        Additional parameter for main polygonal objects.
+        Describes the form of land use ownership.
+    """
     pass
 
 
 class Category(Base, CodeDescMixin):
+    """
+        Additional parameter for all polygonal objects.
+        Describes the category of land for the main purpose.
+    """
     pass
 
 
 class Purpose(Base, CodeDescMixin, CategoryMixin):
+    """
+        Additional parameter for main polygonal objects.
+        Describes the intended purpose of the site within the main category of land.
+    """
     pass
 
 
 #   Event --------------------------------------------------------------------------------------------------------------
 @event.listens_for(Users.password, 'set', retval=True)
 def hash_user_password(target, value, oldvalue, initiator):
+    """
+        Hash the user's password if the password has changed.
+    """
     if value != oldvalue:
         return hash_password(value)
     return value
