@@ -4,20 +4,18 @@ html, body {
     margin: 0;
 }
 
-#cadnum {
-    width: 260px;
-    height: 30px;
-    position: absolute;
-    z-index:  999999;
-    padding-left: 10px;
-    font-size: 15px;
-    top: 12px;
-    left: 60px;
+#navbar {
+    height: 8%;
+}
+
+#input {
+    width: 20%;
+    min-width: 250px;
 }
 
 #map {
     width: 100%;
-    height: 100%;
+    height: 92%;
     position: relative;
     cursor: auto;
 }

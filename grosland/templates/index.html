@@ -10,7 +10,7 @@
     <script src="/static/bootstrap/bootstrap.bundle.min.js"></script>
 
     <!--  Leaflet  -->
-    <link rel="stylesheet" href="/static/leaflet/leaflet.css">
+    <link href="/static/leaflet/leaflet.css" rel="stylesheet">
     <script src="/static/leaflet/leaflet.js"></script>
 
     <!--  Jquery  -->
@@ -19,19 +19,47 @@
     <script src="/static/jquery/jquery.maskedinput.min.js"></script>
 
     <!--  My .css  -->
-    <link rel="stylesheet" href="/static/grosland/grosland.main.css" type="text/css">
+    <link href="/static/grosland/grosland.main.css" rel="stylesheet">
 
     <!--  Leaflet Vector Grid  -->
     <script src="/static/vectorgrid/leaflet.vectorgrid.mins.js"></script>
 {% endblock link %}
 
 {% block content %}
-    <!--  Field for input cadastral number  -->
-    <form id="input">
-      <input type="text" id="cadnum" placeholder="__________:__:___:____">
-    </form>
+    <!--  Navbar  -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark" aria-label="Offcanvas navbar large" id="navbar">
+        <div class="container-fluid">
+            <!--  Field for input cadastral number  -->
+            <form class="d-flex mt-0 mt-lg-0" role="search" id="input">
+                <input class="form-control me-2" type="search" placeholder="Пошук..." aria-label="Search" id="cadnum">
+            </form>
+            <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar2"
+                    aria-controls="offcanvasNavbar2" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="offcanvas offcanvas-end text-bg-dark" tabindex="-1" id="offcanvasNavbar2"
+                 aria-labelledby="offcanvasNavbar2Label">
+                <div class="offcanvas-header">
+                    <h5 class="offcanvas-title" id="offcanvasNavbar2Label">Панель керування</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body">
+                    <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+                        {% if current_user.has_role('admin') %}
+                            <li class="nav-item">
+                                <a class="nav-link active" aria-current="page" href="{{ url_for('admin.index') }}">Адмінка</a>
+                            </li>
+                        {% endif %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('security.logout') }}">Вихід</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
 
-    <!--  Map -->
+    <!--  Map  -->
     <div id="map"></div>
 {% endblock %}
 
