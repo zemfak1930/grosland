@@ -70,6 +70,14 @@ var cadastreMap = L.vectorGrid.protobuf(
 })
 .on('dblclick', function() { window.open('https://e.land.gov.ua/back/cadaster/?cad_num=' + cadnum, '_blank') })
 
+//  EasyPrint ----------------------------------------------------------------------------------------------------------
+L.easyPrint({
+    sizeModes: ['A4Landscape', 'A4Portrait'],
+    filename: 'grosland',
+    exportOnly: true,
+    hideControlContainer: true
+}).addTo(map);
+
 //  Archive Map --------------------------------------------------------------------------------------------------------
 var archiveMap = L.vectorGrid.protobuf(
     'https://grosland.fun/geoserver/gwc/service/tms/1.0.0/grosland:archive@EPSG%3A900913@pbf/{z}/{x}/{-y}.pbf', {
