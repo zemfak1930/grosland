@@ -58,13 +58,14 @@ var cadastreMap = L.vectorGrid.protobuf(
 
     //  Override ID
     cadnum = properties.cadnum;
+    area = properties.area;
 
     //  Set style for selected cadastre
     cadastreMap.setFeatureStyle(cadnum, createStyle(desiredFillColor='#87CEEB', desiredOpacity=0.8));
 
     let tooltip = L.tooltip()
     .setLatLng(event.latlng)
-    .setContent('<p>Кадастровий номер: ' + cadnum + '</p>', { className: "tooltip" })
+    .setContent('Кадастровий номер: ' + cadnum + '<br>' + 'Площа: ' + area + ' га', { className: 'tooltip' })
     .addTo(map);
 })
 .on('dblclick', function() { window.open('https://e.land.gov.ua/back/cadaster/?cad_num=' + cadnum, '_blank') })
@@ -96,13 +97,14 @@ var archiveMap = L.vectorGrid.protobuf(
 
     //  Override ID
     cadnum = properties.cadnum;
+    area = properties.area;
 
     //  Set style for selected archive
     archiveMap.setFeatureStyle(cadnum, createStyle(desiredFillColor='#CD5C5C', desiredOpacity=0.8));
 
     let tooltip = L.tooltip()
     .setLatLng(event.latlng)
-    .setContent('<p>Кадастровий номер: ' + cadnum + '</p>', { className: "tooltip" })
+    .setContent('Кадастровий номер: ' + cadnum + '<br>' + 'Площа: ' + area + ' га', { className: 'tooltip' })
     .addTo(map);
 })
 
