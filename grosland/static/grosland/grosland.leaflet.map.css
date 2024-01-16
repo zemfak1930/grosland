@@ -11,6 +11,7 @@ html, body {
 #input {
     width: 20%;
     min-width: 250px;
+    max-width: 250px;
 }
 
 #map {
