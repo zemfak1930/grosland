@@ -1,3 +1,7 @@
+// Parameters of Map ---------------------------------------------------------------------------------------------------
+var defaultCenter = [48.5, 31.5]
+var defaultZoom = 6
+
 //  Coordinates of plots -----------------------------------------------------------------------------------------------
 var coordinates = new Map();
 
@@ -15,12 +19,17 @@ function createStyle(desiredFillColor='#87CEEB', desiredOpacity=0.4) {
 
 //  Map of Leaflet -----------------------------------------------------------------------------------------------------
 var map = L.map('map', {
-    center: [48.5, 31.5],
-    zoom: 6,
-    minZoom: 6,
+    center: defaultCenter,
+    zoom: defaultZoom,
+    minZoom: defaultZoom,
     maxZoom: 18,
 })
 map.doubleClickZoom.disable();
+
+// Restore View --------------------------------------------------------------------------------------------------------
+if (!map.restoreView()) {
+    map.setView(defaultCenter, defaultZoom);
+}
 
 //  Cadastre Map -------------------------------------------------------------------------------------------------------
 var cadastreMap = L.vectorGrid.protobuf(
