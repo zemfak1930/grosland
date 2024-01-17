@@ -1,10 +1,9 @@
-from grosland.models import Cadastre, History
-
 from flask import render_template, request, jsonify
 
 from flask_security import login_required
 
 from grosland.app import app, session
+from grosland.models import Cadastre, History
 
 
 #   Map ----------------------------------------------------------------------------------------------------------------

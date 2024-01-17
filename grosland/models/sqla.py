@@ -4,10 +4,10 @@ from flask import request
 
 from flask_security import UserMixin, RoleMixin, hash_password, current_user
 
+from geoalchemy2 import Geometry
+
 from sqlalchemy import ForeignKey, Column, String, Integer, DECIMAL, Boolean, DateTime, event
 from sqlalchemy.orm import DeclarativeBase, relationship, backref, declared_attr
-
-from geoalchemy2 import Geometry
 
 
 __all__ = [
