@@ -10,7 +10,8 @@ import uuid
 
 
 __all__ = [
-    "AdminView", "UsersView", "LandView", "CadastreView", "ArchiveView", "OwnershipView", "CategoryView", "PurposeView",
+    "AdminView", "UsersView", "HistoryView", "LandView", "CadastreView", "ArchiveView", "OwnershipView", "CategoryView",
+    "PurposeView",
 ]
 
 
@@ -48,6 +49,18 @@ class UsersView(ModelView):
 
     column_list = ("id", "active", "name", "surname", "email", "tel",)
     form_columns = ("active", "name", "surname", "email", "password", "tel", "roles",)
+
+
+class HistoryView(ModelView):
+    """
+        Displaying user login and search history.
+    """
+    can_create = False
+    can_edit = False
+
+    column_default_sort = ("date", True,)
+    column_list = ("user.surname", "user", "cadnum", "user_ip", "date",)
+    column_searchable_list = ("cadnum",)
 
 
 #   Layers -------------------------------------------------------------------------------------------------------------

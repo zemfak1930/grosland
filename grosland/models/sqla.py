@@ -1,13 +1,17 @@
-from flask_security import UserMixin, RoleMixin, hash_password
+import datetime
 
-from sqlalchemy import ForeignKey, Column, String, Integer, DECIMAL, Boolean, event
+from flask import request
+
+from flask_security import UserMixin, RoleMixin, hash_password, current_user
+
+from sqlalchemy import ForeignKey, Column, String, Integer, DECIMAL, Boolean, DateTime, event
 from sqlalchemy.orm import DeclarativeBase, relationship, backref, declared_attr
 
 from geoalchemy2 import Geometry
 
 
 __all__ = [
-    "Base", "Users", "Roles", "Land", "Cadastre", "Archive", "Ownership", "Category", "Purpose"
+    "Base", "Users", "Roles", "History", "Land", "Cadastre", "Archive", "Ownership", "Category", "Purpose"
 ]
 
 
@@ -118,6 +122,20 @@ class UsersRoles(Base):
     """
     user_id = Column("user_id", Integer, ForeignKey("users.id"))
     role_id = Column("role_id", Integer, ForeignKey("roles.id"))
+
+
+class History(Base):
+    """
+        The model is needed to track the history of site visits and search by users.
+    """
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, default=lambda _: current_user.id)
+    user_ip = Column(String(15), nullable=False, default=lambda _: request.remote_addr)
+    cadnum = Column(String(22))
+    date = Column(DateTime, nullable=False, default=datetime.datetime.now)
+
+    @declared_attr
+    def user(self):
+        return relationship("Users", backref=backref(self.__tablename__))
 
 
 #   Layers -------------------------------------------------------------------------------------------------------------

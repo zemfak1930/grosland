@@ -1,4 +1,4 @@
-from grosland.models import Cadastre
+from grosland.models import Cadastre, History
 
 from flask import render_template, request, jsonify
 
@@ -15,14 +15,19 @@ def index():
         Display a map with layers and search for a specific area.
     """
     if request.method == "POST":
-        geojson = session.query(Cadastre.geometry.ST_AsGeoJSON()).filter_by(
-            cadnum=request.form.to_dict()["cadnum"]
-        ).first()
+        cadnum = request.form.to_dict()["cadnum"]
+        geojson = session.query(Cadastre.geometry.ST_AsGeoJSON()).filter_by(cadnum=cadnum).first()[0]
+
+        session.add(History(cadnum=cadnum))
+        session.commit()
 
         if geojson:
             return jsonify({
-                "coordinates": eval(geojson[0])["coordinates"]
+                "coordinates": eval(geojson)["coordinates"]
             })
+
+    session.add(History())
+    session.commit()
 
     return render_template("index.html")
 

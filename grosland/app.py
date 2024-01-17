@@ -35,6 +35,7 @@ admin = Admin(app, index_view=AdminView())
 admin.add_category(name=("Layers", "Parameters",))
 admin.add_views(
     UsersView(Users, session),
+    HistoryView(History, session),
 
     LandView(Land, session, category="Layers"),
     CadastreView(Cadastre, session, category="Layers"),
