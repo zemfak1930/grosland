@@ -1,4 +1,4 @@
-from flask import render_template, request, jsonify
+from flask import render_template, request, jsonify, Response
 
 from flask_security import login_required
 
@@ -7,28 +7,37 @@ from grosland.models import Cadastre, History
 
 
 #   Map ----------------------------------------------------------------------------------------------------------------
-@app.route("/", methods=["GET", "POST"])
+@app.route("/", methods=["GET"])
 @login_required
 def index():
     """
-        Display a map with layers and search for a specific area.
+        Display a map with layers.
     """
-    if request.method == "POST":
-        cadnum = request.form.to_dict()["cadnum"]
-        geojson = session.query(Cadastre.geometry.ST_AsGeoJSON()).filter_by(cadnum=cadnum).first()[0]
-
-        session.add(History(cadnum=cadnum))
-        session.commit()
-
-        if geojson:
-            return jsonify({
-                "coordinates": eval(geojson)["coordinates"]
-            })
-
-    session.add(History())
-    session.commit()
-
     return render_template("index.html")
+
+
+@app.route("/get_coordinates", methods=["POST"])
+@login_required
+def get_coordinates():
+    """
+        Get coordinates of the land area.
+    """
+    geojson = session.query(Cadastre.geometry.ST_AsGeoJSON()).filter_by(
+        cadnum=request.form.to_dict()["cadnum"]
+    ).first()
+
+    return jsonify({"coordinates": eval(geojson[0])["coordinates"]}) if geojson else Response(status=404)
+
+
+@app.route("/history", methods=["POST"])
+@login_required
+def history():
+    """
+        Saving search history.
+    """
+    session.add(History(cadnum=request.get_data().decode()))
+    session.commit()
+    return Response(status=200)
 
 
 #   Event   ------------------------------------------------------------------------------------------------------------

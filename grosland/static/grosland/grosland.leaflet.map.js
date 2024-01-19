@@ -17,6 +17,14 @@ function createStyle(desiredFillColor='#87CEEB', desiredOpacity=0.4) {
     }
 };
 
+//  Save history -------------------------------------------------------------------------------------------------------
+function saveHistory(message) {
+    fetch('/history', {
+        method: 'POST',
+        body: message,
+    });
+}
+
 //  Map of Leaflet -----------------------------------------------------------------------------------------------------
 var map = L.map('map', {
     center: defaultCenter,
@@ -68,7 +76,12 @@ var cadastreMap = L.vectorGrid.protobuf(
     .setContent('Кадастровий номер: ' + cadnum + '<br>' + 'Площа: ' + area + ' га', { className: 'tooltip' })
     .addTo(map);
 })
-.on('dblclick', function() { window.open('https://e.land.gov.ua/back/cadaster/?cad_num=' + cadnum, '_blank') })
+.on('dblclick', function() {
+    window.open('https://e.land.gov.ua/back/cadaster/?cad_num=' + cadnum, '_blank');
+
+    //  Save click cadnum
+    saveHistory(cadnum);
+})
 
 //  EasyPrint ----------------------------------------------------------------------------------------------------------
 L.easyPrint({
@@ -142,7 +155,7 @@ $(document).ready(function() {
                     cadnum: cadnum,
                 },
                 type: 'POST',
-                url: '/',
+                url: '/get_coordinates',
                 async:false,
             })
             //  Actions after
@@ -166,6 +179,9 @@ $(document).ready(function() {
         } else {
             window.alert('Земельна ділянка з кадастровим номером ' + cadnum + ' відсутня.')
         };
+
+        //  Save search history
+        saveHistory(cadnum);
 
         // Reset browser settings
         event.preventDefault();
