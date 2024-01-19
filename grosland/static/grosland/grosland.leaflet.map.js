@@ -142,6 +142,9 @@ L.control.layers({
 
 //  Search cadnum in .db -----------------------------------------------------------------------------------------------
 $(document).ready(function() {
+    //  Save login tracking
+    saveHistory('Вхід у сервіс');
+
     //
     $('#input').on('submit', function(event){
         //
