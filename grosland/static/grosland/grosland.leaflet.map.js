@@ -39,6 +39,17 @@ if (!map.restoreView()) {
     map.setView(defaultCenter, defaultZoom);
 }
 
+//  EasyPrint ----------------------------------------------------------------------------------------------------------
+L.easyPrint({
+    sizeModes: ['A4Landscape', 'A4Portrait'],
+    filename: 'grosland',
+    exportOnly: true,
+    hideControlContainer: true
+}).addTo(map);
+
+//  LocateControl ------------------------------------------------------------------------------------------------------
+L.control.locate().addTo(map);
+
 //  Cadastre Map -------------------------------------------------------------------------------------------------------
 var cadastreMap = L.vectorGrid.protobuf(
     'https://grosland.fun/geoserver/gwc/service/tms/1.0.0/grosland:cadastre@EPSG%3A900913@pbf/{z}/{x}/{-y}.pbf', {
@@ -82,14 +93,6 @@ var cadastreMap = L.vectorGrid.protobuf(
     //  Save click cadnum
     saveHistory(cadnum);
 })
-
-//  EasyPrint ----------------------------------------------------------------------------------------------------------
-L.easyPrint({
-    sizeModes: ['A4Landscape', 'A4Portrait'],
-    filename: 'grosland',
-    exportOnly: true,
-    hideControlContainer: true
-}).addTo(map);
 
 //  Archive Map --------------------------------------------------------------------------------------------------------
 var archiveMap = L.vectorGrid.protobuf(
