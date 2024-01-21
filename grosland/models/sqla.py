@@ -43,7 +43,7 @@ class GeometryMixin:
     """
         Base parameters for all polygonal objects.
     """
-    area = Column(DECIMAL(8, 4), nullable=False)
+    area = Column(DECIMAL(12, 4), nullable=False)
     address = Column(String(255))
     geometry = Column(Geometry(geometry_type="MULTIPOLYGON", srid=4326), nullable=False)
 
