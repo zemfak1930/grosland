@@ -35,7 +35,7 @@ def history():
     """
         Saving search history.
     """
-    session.add(History(cadnum=request.get_data().decode()))
+    session.add(History(message=request.get_data().decode()))
     session.commit()
     return Response(status=200)
 

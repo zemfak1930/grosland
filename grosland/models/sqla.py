@@ -129,8 +129,8 @@ class History(Base):
         The model is needed to track the history of site visits and search by users.
     """
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False, default=lambda _: current_user.id)
-    user_ip = Column(String(15), nullable=False, default=lambda _: request.headers.get('X-Real-IP'))
-    cadnum = Column(String(22))
+    user_ip = Column(String(15), nullable=False, default=lambda _: request.remote_addr)
+    message = Column(String(255))
     date = Column(DateTime, nullable=False, default=datetime.datetime.now)
 
     @declared_attr

@@ -59,8 +59,8 @@ class HistoryView(ModelView):
     can_edit = False
 
     column_default_sort = ("date", True,)
-    column_list = ("user.surname", "user", "cadnum", "user_ip", "date",)
-    column_searchable_list = ("cadnum",)
+    column_list = ("user.surname", "user", "message", "user_ip", "date",)
+    column_searchable_list = ("message",)
 
 
 #   Layers -------------------------------------------------------------------------------------------------------------
