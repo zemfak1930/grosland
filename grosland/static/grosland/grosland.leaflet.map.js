@@ -48,7 +48,10 @@ L.easyPrint({
 }).addTo(map);
 
 //  LocateControl ------------------------------------------------------------------------------------------------------
-L.control.locate().addTo(map);
+L.control.locate({
+    enableHighAccuracy: true,
+    showPopup: false,
+}).addTo(map);
 
 //  Cadastre Map -------------------------------------------------------------------------------------------------------
 var cadastreMap = L.vectorGrid.protobuf(
