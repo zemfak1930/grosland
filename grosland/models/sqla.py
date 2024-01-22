@@ -138,6 +138,39 @@ class History(Base):
         return relationship("Users", backref=backref(self.__tablename__))
 
 
+#   ATU ----------------------------------------------------------------------------------------------------------------
+class State(Base, CodeDescMixin, GeometryMixin):
+    """
+        Polygonal object.
+        State of Ukraine.
+    """
+    pass
+
+
+class District(Base, CodeDescMixin, GeometryMixin):
+    """
+        Polygonal object.
+        Old districts of Ukrane.
+    """
+    pass
+
+
+class Council(Base, CodeDescMixin, GeometryMixin):
+    """
+        Polygonal object.
+        Old councils of Ukrane.
+    """
+    pass
+
+
+class Village(Base, CodeDescMixin, GeometryMixin):
+    """
+        Polygonal object.
+        Villages of Ukrane.
+    """
+    pass
+
+
 #   Layers -------------------------------------------------------------------------------------------------------------
 class Land(Base, GeometryMixin, CategoryMixin):
     """
