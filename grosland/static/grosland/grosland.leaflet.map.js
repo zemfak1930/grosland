@@ -1,12 +1,23 @@
-// Parameters of Map ---------------------------------------------------------------------------------------------------
-var defaultCenter = [48.5, 31.5]
-var defaultZoom = 6
-
-//  Coordinates of plots -----------------------------------------------------------------------------------------------
+// Base Variable -------------------------------------------------------------------------------------------------------
 var coordinates = new Map();
 
-//  Create style -------------------------------------------------------------------------------------------------------
-function createStyle(desiredFillColor='#87CEEB', desiredOpacity=0.4) {
+var defaultCenter = [48.5, 31.5];
+
+var defaultZoom = 6;
+
+var layers = {
+    archive: {
+        code: 'archive',
+        color: '#CD5C5C',
+    },
+    cadastre: {
+        code: 'cadastre',
+        color: '#87CEEB',
+    },
+};
+
+//  Base functions -----------------------------------------------------------------------------------------------------
+function createStyle(desiredFillColor, desiredOpacity) {
     return {
         stroke: true,
         color: '#000000',
@@ -17,13 +28,12 @@ function createStyle(desiredFillColor='#87CEEB', desiredOpacity=0.4) {
     }
 };
 
-//  Save history -------------------------------------------------------------------------------------------------------
 function saveHistory(message) {
     fetch('/history', {
         method: 'POST',
         body: message,
     });
-}
+};
 
 //  Map of Leaflet -----------------------------------------------------------------------------------------------------
 var map = L.map('map', {
@@ -31,109 +41,76 @@ var map = L.map('map', {
     zoom: defaultZoom,
     minZoom: defaultZoom,
     maxZoom: 18,
-})
+});
 map.doubleClickZoom.disable();
 
-// Restore View --------------------------------------------------------------------------------------------------------
+//  Leaflet Plugins ----------------------------------------------------------------------------------------------------
+//  Restore View
 if (!map.restoreView()) {
     map.setView(defaultCenter, defaultZoom);
-}
+};
 
-//  EasyPrint ----------------------------------------------------------------------------------------------------------
+//  EasyPrint
 L.easyPrint({
     sizeModes: ['A4Landscape', 'A4Portrait'],
     filename: 'grosland',
     exportOnly: true,
-    hideControlContainer: true
+    hideControlContainer: true,
 }).addTo(map);
 
-//  LocateControl ------------------------------------------------------------------------------------------------------
+//  LocateControl
 L.control.locate({
     enableHighAccuracy: true,
     showPopup: false,
 }).addTo(map);
 
-//  Cadastre Map -------------------------------------------------------------------------------------------------------
-var cadastreMap = L.vectorGrid.protobuf(
-    'https://grosland.fun/geoserver/gwc/service/tms/1.0.0/grosland:cadastre@EPSG%3A900913@pbf/{z}/{x}/{-y}.pbf', {
-        minZoom: 14,
-        maxZoom: 18,
-        interactive: true,
-        getFeatureId: function(feature) { return feature.properties.cadnum },
-        vectorTileLayerStyles: {
-            cadastre: createStyle(),
-        },
-    }
-)
-.on('click', function(event) {
-    //  Get properties of cadastre
-    if (event.layer.feature) {
-        var properties = event.layer.feature.properties;
-    } else {
-        var properties = event.layer.properties;
+//  Layers -------------------------------------------------------------------------------------------------------------
+for (var key in layers) {
+    layers[key].overlay = L.vectorGrid.protobuf(
+        'https://grosland.fun/geoserver/gwc/service/tms/1.0.0/grosland:' + layers[key].code + '@EPSG%3A900913@pbf/{z}/{x}/{-y}.pbf', {
+            minZoom: 14,
+            maxZoom: 18,
+            interactive: true,
+            getFeatureId: function(feature) { return feature.properties.cadnum },
+            vectorTileLayerStyles: {
+                cadastre: createStyle(desiredFillColor=layers[key].color, desiredOpacity=0.4),
+                archive: createStyle(desiredFillColor=layers[key].color, desiredOpacity=0.4),
+            },
+        }
+    )
+    .on('click', function(event) {
+        //  Get properties of cadastre
+        if (event.layer.feature) {
+            var properties = event.layer.feature.properties;
+        } else {
+            var properties = event.layer.properties;
+        };
+
+        //  Set default cadastre style
+        if (properties != 0) {
+            layers[key].overlay.setFeatureStyle(cadnum, createStyle(desiredFillColor=layers[key].color, desiredOpacity=0.4))
+        };
+
+        //  Override ID
+        cadnum = properties.cadnum;
+        area = properties.area;
+
+        //  Set style for selected cadastre
+        layers[key].overlay.setFeatureStyle(cadnum, createStyle(desiredFillColor=layers[key].color, desiredOpacity=0.8));
+
+        let tooltip = L.tooltip()
+        .setLatLng(event.latlng)
+        .setContent('Кадастровий номер: ' + cadnum + '<br>' + 'Площа: ' + area + ' га', { className: 'tooltip' } )
+        .addTo(map);
+    });
+
+    if (layers[key].code === 'cadastre') {
+        layers[key].overlay.on('dblclick', function() {
+            window.open('https://e.land.gov.ua/back/cadaster/?cad_num=' + cadnum, '_blank');
+            saveHistory(cadnum);
+        })
     };
-
-    //  Set default cadastre style
-    if (properties != 0) {
-        cadastreMap.setFeatureStyle(cadnum, createStyle())
-    };
-
-    //  Override ID
-    cadnum = properties.cadnum;
-    area = properties.area;
-
-    //  Set style for selected cadastre
-    cadastreMap.setFeatureStyle(cadnum, createStyle(desiredFillColor='#87CEEB', desiredOpacity=0.8));
-
-    let tooltip = L.tooltip()
-    .setLatLng(event.latlng)
-    .setContent('Кадастровий номер: ' + cadnum + '<br>' + 'Площа: ' + area + ' га', { className: 'tooltip' })
-    .addTo(map);
-})
-.on('dblclick', function() {
-    window.open('https://e.land.gov.ua/back/cadaster/?cad_num=' + cadnum, '_blank');
-
-    //  Save click cadnum
-    saveHistory(cadnum);
-})
-
-//  Archive Map --------------------------------------------------------------------------------------------------------
-var archiveMap = L.vectorGrid.protobuf(
-    'https://grosland.fun/geoserver/gwc/service/tms/1.0.0/grosland:archive@EPSG%3A900913@pbf/{z}/{x}/{-y}.pbf', {
-        minZoom: 14,
-        maxZoom: 18,
-        interactive: true,
-        getFeatureId: function(feature) { return feature.properties.cadnum },
-        vectorTileLayerStyles: {
-            archive: createStyle(desiredFillColor='#CD5C5C', desiredOpacity=0.4),
-        },
-    }
-)
-.on('click', function(event) {
-    //  Get properties of archive
-    if (event.layer.feature) {
-        var properties = event.layer.feature.properties;
-    } else {
-        var properties = event.layer.properties;
-    };
-
-    //  Set default archive style
-    if (properties != 0) {
-        archiveMap.setFeatureStyle(cadnum, createStyle(desiredFillColor='#CD5C5C', desiredOpacity=0.4))
-    };
-
-    //  Override ID
-    cadnum = properties.cadnum;
-    area = properties.area;
-
-    //  Set style for selected archive
-    archiveMap.setFeatureStyle(cadnum, createStyle(desiredFillColor='#CD5C5C', desiredOpacity=0.8));
-
-    let tooltip = L.tooltip()
-    .setLatLng(event.latlng)
-    .setContent('Кадастровий номер: ' + cadnum + '<br>' + 'Площа: ' + area + ' га', { className: 'tooltip' })
-    .addTo(map);
-})
+};
 
 //  LayerControl -------------------------------------------------------------------------------------------------------
 L.control.layers({
@@ -142,23 +119,28 @@ L.control.layers({
     'EsriMap': L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'),
 }, {
     // overlayMaps
-    'Кадастр': cadastreMap.addTo(map),
-    'Архів': archiveMap,
+    'Кадастр': layers.cadastre.overlay.addTo(map),
+    'Архів': layers.archive.overlay,
 }).addTo(map);
+
+//  ATU ----------------------------------------------------------------------------------------------------------------
+['village', 'council', 'district', 'state'].forEach(function(item, i, arr) {
+    L.tileLayer.wms('https://grosland.fun/geoserver/wms', {
+        layers: 'grosland:' + item,
+        format: 'image/png',
+        transparent: true,
+        version: '1.1.0',
+    }).addTo(map);
+});
 
 //  Search cadnum in .db -----------------------------------------------------------------------------------------------
 $(document).ready(function() {
-    //  Save login tracking
     saveHistory('Вхід у сервіс');
 
-    //
     $('#input').on('submit', function(event){
-        //
         let cadnum = $('#cadnum').val();
 
-        //
         if (coordinates.has(cadnum) === false) {
-            //  The request itself
             $.ajax({
                 data: {
                     cadnum: cadnum,
@@ -167,7 +149,6 @@ $(document).ready(function() {
                 url: '/get_coordinates',
                 async:false,
             })
-            //  Actions after
             .done(function(data){
                 coordinates.set(cadnum, data.coordinates);
             });
@@ -189,10 +170,7 @@ $(document).ready(function() {
             window.alert('Земельна ділянка з кадастровим номером ' + cadnum + ' відсутня.')
         };
 
-        //  Save search history
         saveHistory(cadnum);
-
-        // Reset browser settings
         event.preventDefault();
     });
 });
