@@ -1,19 +1,19 @@
 // Base Variable -------------------------------------------------------------------------------------------------------
 var coordinates = new Map();
-
 var defaultCenter = [48.5, 31.5];
+var minZoom = 6;
+var maxZoom = 18;
 
-var defaultZoom = 6;
+var mainLayers = {
+    archive:    { color: '#CD5C5C', minZoom: 14 },
+    cadastre:   { color: '#87CEEB', minZoom: 14 },
+};
 
-var layers = {
-    archive: {
-        code: 'archive',
-        color: '#CD5C5C',
-    },
-    cadastre: {
-        code: 'cadastre',
-        color: '#87CEEB',
-    },
+var atuLayers = {
+    village:    { color: '#0000FF', minZoom: 14 },
+    council:    { color: '#0000FF', minZoom: 13 },
+    district:   { color: '#0000FF', minZoom: 11 },
+    state:      { color: '#FF0000', minZoom: 6  },
 };
 
 //  Base functions -----------------------------------------------------------------------------------------------------
@@ -38,16 +38,16 @@ function saveHistory(message) {
 //  Map of Leaflet -----------------------------------------------------------------------------------------------------
 var map = L.map('map', {
     center: defaultCenter,
-    zoom: defaultZoom,
-    minZoom: defaultZoom,
-    maxZoom: 18,
+    zoom: minZoom,
+    minZoom: minZoom,
+    maxZoom: maxZoom,
 });
 map.doubleClickZoom.disable();
 
 //  Leaflet Plugins ----------------------------------------------------------------------------------------------------
 //  Restore View
 if (!map.restoreView()) {
-    map.setView(defaultCenter, defaultZoom);
+    map.setView(defaultCenter, minZoom);
 };
 
 //  EasyPrint
@@ -64,17 +64,17 @@ L.control.locate({
     showPopup: false,
 }).addTo(map);
 
-//  Layers -------------------------------------------------------------------------------------------------------------
-for (var key in layers) {
-    layers[key].overlay = L.vectorGrid.protobuf(
-        'https://grosland.fun/geoserver/gwc/service/tms/1.0.0/grosland:' + layers[key].code + '@EPSG%3A900913@pbf/{z}/{x}/{-y}.pbf', {
-            minZoom: 14,
-            maxZoom: 18,
+//  Main Layers --------------------------------------------------------------------------------------------------------
+for (let key in mainLayers) {
+    mainLayers[key].overlay = L.vectorGrid.protobuf(
+        'https://grosland.fun/geoserver/gwc/service/tms/1.0.0/grosland:' + key + '@EPSG%3A900913@pbf/{z}/{x}/{-y}.pbf', {
+            minZoom: mainLayers[key].minZoom,
+            maxZoom: maxZoom,
             interactive: true,
             getFeatureId: function(feature) { return feature.properties.cadnum },
             vectorTileLayerStyles: {
-                cadastre: createStyle(desiredFillColor=layers[key].color, desiredOpacity=0.4),
-                archive: createStyle(desiredFillColor=layers[key].color, desiredOpacity=0.4),
+                cadastre:   createStyle(desiredFillColor=mainLayers[key].color, desiredOpacity=0.4),
+                archive:    createStyle(desiredFillColor=mainLayers[key].color, desiredOpacity=0.4),
             },
         }
     )
@@ -88,7 +88,7 @@ for (var key in layers) {
 
         //  Set default cadastre style
         if (properties != 0) {
-            layers[key].overlay.setFeatureStyle(cadnum, createStyle(desiredFillColor=layers[key].color, desiredOpacity=0.4))
+            mainLayers[key].overlay.setFeatureStyle(cadnum, createStyle(desiredFillColor=mainLayers[key].color, desiredOpacity=0.4))
         };
 
         //  Override ID
@@ -96,7 +96,7 @@ for (var key in layers) {
         area = properties.area;
 
         //  Set style for selected cadastre
-        layers[key].overlay.setFeatureStyle(cadnum, createStyle(desiredFillColor=layers[key].color, desiredOpacity=0.8));
+        mainLayers[key].overlay.setFeatureStyle(cadnum, createStyle(desiredFillColor=mainLayers[key].color, desiredOpacity=0.8));
 
         let tooltip = L.tooltip()
         .setLatLng(event.latlng)
@@ -104,8 +104,8 @@ for (var key in layers) {
         .addTo(map);
     });
 
-    if (layers[key].code === 'cadastre') {
-        layers[key].overlay.on('dblclick', function() {
+    if (key === 'cadastre') {
+        mainLayers[key].overlay.on('dblclick', function() {
             window.open('https://e.land.gov.ua/back/cadaster/?cad_num=' + cadnum, '_blank');
             saveHistory(cadnum);
         })
@@ -119,19 +119,21 @@ L.control.layers({
     'EsriMap': L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'),
 }, {
     // overlayMaps
-    'Кадастр': layers.cadastre.overlay.addTo(map),
-    'Архів': layers.archive.overlay,
+    'Кадастр': mainLayers.cadastre.overlay.addTo(map),
+    'Архів': mainLayers.archive.overlay,
 }).addTo(map);
 
-//  ATU ----------------------------------------------------------------------------------------------------------------
-['village', 'council', 'district', 'state'].forEach(function(item, i, arr) {
+//  ATU Layers ---------------------------------------------------------------------------------------------------------
+for (let key in atuLayers) {
     L.tileLayer.wms('https://grosland.fun/geoserver/wms', {
-        layers: 'grosland:' + item,
+        layers: 'grosland:' + key,
         format: 'image/png',
+        minZoom: atuLayers[key].minZoom,
+        maxZoom: maxZoom,
         transparent: true,
         version: '1.1.0',
     }).addTo(map);
-});
+};
 
 //  Search cadnum in .db -----------------------------------------------------------------------------------------------
 $(document).ready(function() {
