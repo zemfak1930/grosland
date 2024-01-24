@@ -1,19 +1,11 @@
 // Base Variable -------------------------------------------------------------------------------------------------------
 var coordinates = new Map();
-var defaultCenter = [48.5, 31.5];
-var minZoom = 6;
+var minZoom = 9;
 var maxZoom = 18;
 
 var mainLayers = {
-    archive:    { color: '#CD5C5C', minZoom: 14 },
-    cadastre:   { color: '#87CEEB', minZoom: 14 },
-};
-
-var atuLayers = {
-    village:    { color: '#0000FF', minZoom: 14 },
-    council:    { color: '#0000FF', minZoom: 13 },
-    district:   { color: '#0000FF', minZoom: 11 },
-    state:      { color: '#FF0000', minZoom: 6  },
+    archive:    { color: '#CD5C5C' },
+    cadastre:   { color: '#87CEEB' },
 };
 
 //  Base functions -----------------------------------------------------------------------------------------------------
@@ -37,17 +29,18 @@ function saveHistory(message) {
 
 //  Map of Leaflet -----------------------------------------------------------------------------------------------------
 var map = L.map('map', {
-    center: defaultCenter,
-    zoom: minZoom,
     minZoom: minZoom,
     maxZoom: maxZoom,
+    maxBounds: L.latLngBounds(
+        L.latLng(46.75, 29.1), L.latLng(47.4, 31),
+    ),
 });
 map.doubleClickZoom.disable();
 
 //  Leaflet Plugins ----------------------------------------------------------------------------------------------------
 //  Restore View
 if (!map.restoreView()) {
-    map.setView(defaultCenter, minZoom);
+    map.setView([47.07, 29.9], minZoom);
 };
 
 //  EasyPrint
@@ -68,7 +61,7 @@ L.control.locate({
 for (let key in mainLayers) {
     mainLayers[key].overlay = L.vectorGrid.protobuf(
         'https://grosland.fun/geoserver/gwc/service/tms/1.0.0/grosland:' + key + '@EPSG%3A900913@pbf/{z}/{x}/{-y}.pbf', {
-            minZoom: mainLayers[key].minZoom,
+            minZoom: (minZoom + maxZoom) / 2,
             maxZoom: maxZoom,
             interactive: true,
             getFeatureId: function(feature) { return feature.properties.cadnum },
@@ -124,16 +117,15 @@ L.control.layers({
 }).addTo(map);
 
 //  ATU Layers ---------------------------------------------------------------------------------------------------------
-for (let key in atuLayers) {
+['village', 'council', 'district'].forEach(function(item, i, arr) {
     L.tileLayer.wms('https://grosland.fun/geoserver/wms', {
-        layers: 'grosland:' + key,
+        layers: 'grosland:' + item,
         format: 'image/png',
-        minZoom: atuLayers[key].minZoom,
-        maxZoom: maxZoom,
+        minZoom: (item === 'village') ? 13 : minZoom,
         transparent: true,
         version: '1.1.0',
     }).addTo(map);
-};
+});
 
 //  Search cadnum in .db -----------------------------------------------------------------------------------------------
 $(document).ready(function() {
