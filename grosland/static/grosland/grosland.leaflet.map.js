@@ -32,7 +32,7 @@ var map = L.map('map', {
     minZoom: minZoom,
     maxZoom: maxZoom,
     maxBounds: L.latLngBounds(
-        L.latLng(46.75, 29.1), L.latLng(47.4, 31),
+        L.latLng(46, 29.1), L.latLng(48, 31),
     ),
 });
 map.doubleClickZoom.disable();
@@ -95,6 +95,8 @@ for (let key in mainLayers) {
         .setLatLng(event.latlng)
         .setContent('Кадастровий номер: ' + cadnum + '<br>' + 'Площа: ' + area + ' га', { className: 'tooltip' } )
         .addTo(map);
+
+	saveHistory(cadnum);
     });
 
     if (key === 'cadastre') {
