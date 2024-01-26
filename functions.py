@@ -70,3 +70,27 @@ def create_db_object(**kwargs):
 
             session.add(new_object)
         session.commit()
+
+
+def list_comparison(services_file: str, grosland_file: str):
+    """
+        Generates lists of plots that need to be removed or added to the database.
+    :param services_file: Path to the file with plot from Geocadastre services.
+    :param grosland_file: Path to the file with plot from grosland.
+    :return: None
+    """
+    services = set(open(services_file).read().split("\n"))
+    cadastre = set(open(grosland_file).read().split("\n"))
+
+    del_plot = open("temp/del_plot.txt", "a")
+    add_plot = open("temp/add_plot.txt", "a")
+
+    for item in cadastre:
+        if item not in services:
+            del_plot.write(f"{item}\n")
+    del_plot.close()
+
+    for i in services:
+        if i not in cadastre:
+            add_plot.write(f"{i}\n")
+    add_plot.close()
