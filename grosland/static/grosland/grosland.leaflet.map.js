@@ -129,8 +129,6 @@ L.control.layers({
 
 //  Search cadnum in .db -----------------------------------------------------------------------------------------------
 $(document).ready(function() {
-    saveHistory('Вхід у сервіс');
-
     $('#input').on('submit', function(event){
         let cadnum = $('#cadnum').val();
 
