@@ -94,3 +94,29 @@ def list_comparison(services_file: str, grosland_file: str):
         if i not in cadastre:
             add_plot.write(f"{i}\n")
     add_plot.close()
+
+
+def transfer_to_archive(file):
+    """
+        Transferring areas to the archive layer.
+    :param file: Path to the file.
+    :return: None
+    """
+    delete_list = set(open(file).read().split("\n"))
+
+    for item in delete_list:
+        cadastre = session.query(Cadastre).filter_by(cadnum=item).first()
+
+        archive = Archive(
+            cadnum=cadastre.cadnum,
+            ownership_code=cadastre.ownership_code,
+            purpose_code=cadastre.purpose_code,
+            area=cadastre.area,
+            address=cadastre.address,
+            geometry=cadastre.geometry
+        )
+
+        session.add(archive)
+        session.delete(cadastre)
+    session.commit()
+
