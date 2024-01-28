@@ -21,7 +21,7 @@ function createStyle(desiredFillColor, desiredOpacity) {
 };
 
 function saveHistory(message) {
-    fetch('/history', {
+    fetch('/journal/search_history/', {
         method: 'POST',
         body: message,
     });
@@ -135,20 +135,18 @@ $(document).ready(function() {
         let cadnum = $('#cadnum').val();
 
         if (coordinates.has(cadnum) === false) {
-            $.ajax({
-                data: {
-                    cadnum: cadnum,
-                },
-                type: 'POST',
-                url: '/get_coordinates',
-                async:false,
-            })
-            .done(function(data){
-                coordinates.set(cadnum, data.coordinates);
-            });
+            let xhr = new XMLHttpRequest();
+            xhr.open('GET', '/api/parcels/' + cadnum, false);
+            xhr.send();
+
+            if (xhr.status >= 200 && xhr.status < 300) {
+                //  Can receive an entire object and remember/output it? Wouldn't it catch more memory?
+                coordinates.set(cadnum, JSON.parse(xhr.responseText).features[0].geometry.coordinates);
+            };
         };
 
         if (coordinates.get(cadnum) !== undefined) {
+            //  Can receive an entire object and remember/output it? Wouldn't it catch more memory?
             map.fitBounds(L.geoJSON({
                 "type": "FeatureCollection",
                 "features": [{
