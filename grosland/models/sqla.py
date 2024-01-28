@@ -6,6 +6,8 @@ from flask_security import UserMixin, RoleMixin, hash_password, current_user
 
 from geoalchemy2 import Geometry
 
+from shapely.wkb import loads
+
 from sqlalchemy import ForeignKey, Column, String, Integer, DECIMAL, Boolean, Date, DateTime, event
 from sqlalchemy.orm import DeclarativeBase, relationship, backref, declared_attr
 
@@ -46,6 +48,52 @@ class GeometryMixin:
     area = Column(DECIMAL(12, 4), nullable=False)
     address = Column(String(255))
     geometry = Column(Geometry(geometry_type="MULTIPOLYGON", srid=4326), nullable=False)
+
+    def wkb_to_geojson(self):
+        """
+            Convert WKBElement to Geojson format from polygonal object.
+        :return: Geojson
+        """
+        polygons_coordinates = []
+
+        for polygon in loads(bytes.fromhex(str(self.geometry))).geoms:
+            exterior_coordinates = [list(coord) for coord in polygon.exterior.coords]
+            interiors_coordinates = [[list(coord) for coord in interior.coords] for interior in polygon.interiors]
+            polygons_coordinates.append([exterior_coordinates] + interiors_coordinates)
+
+        geojson = {
+            "type": "FeatureCollection",
+            "features": [{
+                "type": "Feature",
+                "properties": {
+                    "id": self.id,
+                    "area": float(self.area),
+                    "address": self.address
+                },
+                "geometry": {
+                    "type": "MultiPolygon",
+                    "coordinates": polygons_coordinates
+                }
+            }]
+        }
+
+        if self.__tablename__ in ["cadastre", "archive"]:
+            geojson["features"][0]["properties"].update({
+                "cadnum": self.cadnum,
+                "category": self.purpose.category.code + " " + self.purpose.category.desc,
+                "ownership": self.ownership_code + " " + self.ownership.desc + " власність",
+                "purpose": self.purpose_code + " " + self.purpose.desc
+            })
+
+        elif self.__tablename__ in ["land"]:
+            geojson["features"][0]["properties"].update({
+                "category": self.category.code + " " + self.category.desc,
+            })
+
+        return geojson
+
+    def __str__(self):
+        return str(self.id) + " - " + str(self.area) + " га"
 
 
 class ParametersMixin:
@@ -149,7 +197,7 @@ class Revision(Base):
 
 
 #   ATU ----------------------------------------------------------------------------------------------------------------
-class State(Base, CodeDescMixin, GeometryMixin):
+class State(Base, GeometryMixin, CodeDescMixin):
     """
         Polygonal object.
         State of Ukraine.
@@ -157,7 +205,7 @@ class State(Base, CodeDescMixin, GeometryMixin):
     pass
 
 
-class District(Base, CodeDescMixin, GeometryMixin):
+class District(Base, GeometryMixin, CodeDescMixin):
     """
         Polygonal object.
         Old districts of Ukrane.
@@ -165,7 +213,7 @@ class District(Base, CodeDescMixin, GeometryMixin):
     pass
 
 
-class Council(Base, CodeDescMixin, GeometryMixin):
+class Council(Base, GeometryMixin, CodeDescMixin):
     """
         Polygonal object.
         Old councils of Ukrane.
@@ -173,7 +221,7 @@ class Council(Base, CodeDescMixin, GeometryMixin):
     pass
 
 
-class Village(Base, CodeDescMixin, GeometryMixin):
+class Village(Base, GeometryMixin, CodeDescMixin):
     """
         Polygonal object.
         Villages of Ukrane.
@@ -187,8 +235,7 @@ class Land(Base, GeometryMixin, CategoryMixin):
         Polygonal object.
         Describes a plot of land without a cadastral number.
     """
-    def __str__(self):
-        return self.id + " - " + self.area + " га"
+    pass
 
 
 class Cadastre(Base, GeometryMixin, ParametersMixin):
