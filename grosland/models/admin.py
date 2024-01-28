@@ -10,8 +10,8 @@ import uuid
 
 
 __all__ = [
-    "AdminView", "UsersView", "HistoryView", "LandView", "CadastreView", "ArchiveView", "OwnershipView", "CategoryView",
-    "PurposeView",
+    "AdminView", "UsersView", "HistoryView", "RevisionView", "LandView", "CadastreView", "ArchiveView", "OwnershipView",
+    "CategoryView", "PurposeView",
 ]
 
 
@@ -61,6 +61,13 @@ class HistoryView(ModelView):
     column_default_sort = ("date", True,)
     column_list = ("user.surname", "user", "message", "user_ip", "date",)
     column_searchable_list = ("message",)
+
+
+class RevisionView(ModelView):
+    """
+        Displaying land plot revision date.
+    """
+    pass
 
 
 #   Layers -------------------------------------------------------------------------------------------------------------

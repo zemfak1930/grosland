@@ -6,12 +6,12 @@ from flask_security import UserMixin, RoleMixin, hash_password, current_user
 
 from geoalchemy2 import Geometry
 
-from sqlalchemy import ForeignKey, Column, String, Integer, DECIMAL, Boolean, DateTime, event
+from sqlalchemy import ForeignKey, Column, String, Integer, DECIMAL, Boolean, Date, DateTime, event
 from sqlalchemy.orm import DeclarativeBase, relationship, backref, declared_attr
 
 
 __all__ = [
-    "Base", "Users", "Roles", "History", "Land", "Cadastre", "Archive", "Ownership", "Category", "Purpose"
+    "Base", "Users", "Roles", "History", "Revision", "Land", "Cadastre", "Archive", "Ownership", "Category", "Purpose"
 ]
 
 
@@ -136,6 +136,16 @@ class History(Base):
     @declared_attr
     def user(self):
         return relationship("Users", backref=backref(self.__tablename__))
+
+
+class Revision(Base):
+    """
+        Land plots revision date.
+    """
+    date = Column(Date, unique=True, nullable=False)
+
+    def __str__(self):
+        return self.date
 
 
 #   ATU ----------------------------------------------------------------------------------------------------------------
