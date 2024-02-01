@@ -85,6 +85,7 @@ class CadastreView(ModelView):
     """
     column_list = ("id", "cadnum", "area", "ownership", "purpose.category", "purpose", "address",)
     form_columns = ("cadnum", "area", "ownership", "purpose", "address",)
+    column_searchable_list = ("cadnum",)
 
 
 class ArchiveView(CadastreView):
