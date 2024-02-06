@@ -71,14 +71,6 @@ class RevisionView(ModelView):
 
 
 #   Layers -------------------------------------------------------------------------------------------------------------
-class LandView(ModelView):
-    """
-        Managing a model of a land plot without a cadastral number.
-    """
-    column_list = ("id", "area", "category", "address",)
-    form_columns = ("area", "category", "address")
-
-
 class CadastreView(ModelView):
     """
         Managing a model of a land plot with actual land cadastre data.
@@ -91,6 +83,13 @@ class CadastreView(ModelView):
 class ArchiveView(CadastreView):
     """
         Managing a model of a land plot with archive land cadastre data.
+    """
+    pass
+
+
+class LandView(CadastreView):
+    """
+        Managing a model of a land plot without a cadastral number.
     """
     pass
 

@@ -230,14 +230,6 @@ class Village(Base, GeometryMixin, CodeDescMixin):
 
 
 #   Layers -------------------------------------------------------------------------------------------------------------
-class Land(Base, GeometryMixin, CategoryMixin):
-    """
-        Polygonal object.
-        Describes a plot of land without a cadastral number.
-    """
-    pass
-
-
 class Cadastre(Base, GeometryMixin, ParametersMixin):
     """
         Main polygonal object.
@@ -250,6 +242,14 @@ class Archive(Base, GeometryMixin, ParametersMixin):
     """
         Main polygonal object.
         Describes a plot of lands with archive land cadastre data.
+    """
+    pass
+
+
+class Land(Base, GeometryMixin, ParametersMixin):
+    """
+        Polygonal object.
+        Describes a plot of land without a cadastral number.
     """
     pass
 
