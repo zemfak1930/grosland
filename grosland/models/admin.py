@@ -6,13 +6,13 @@ from flask_admin.form import BaseForm
 
 from flask_security import current_user
 
+from grosland.dictionary import main_dictionary
+
 import uuid
 
 
-__all__ = [
-    "AdminView", "UsersView", "HistoryView", "RevisionView", "LandView", "CadastreView", "ArchiveView", "OwnershipView",
-    "CategoryView", "PurposeView",
-]
+__all__ = ["AdminView", "UsersView", "HistoryView", "RevisionView"] + \
+          [_ + "View" for _ in value for key, value in main_dictionary.items()]
 
 
 #   Base ---------------------------------------------------------------------------------------------------------------
@@ -70,47 +70,14 @@ class RevisionView(ModelView):
     pass
 
 
-#   Layers -------------------------------------------------------------------------------------------------------------
-class CadastreView(ModelView):
+#   ATU / Layers / Parameters ------------------------------------------------------------------------------------------
+for key, value in main_dictionary.items():
+    attributes = """
+        column_list = ("id", "cadnum", "area", "ownership", "purpose.category", "purpose", "address",)\n
+        form_columns = ("cadnum", "area", "ownership", "purpose", "address",)\n
+        column_searchable_list = ("cadnum",)
     """
-        Managing a model of a land plot with actual land cadastre data.
-    """
-    column_list = ("id", "cadnum", "area", "ownership", "purpose.category", "purpose", "address",)
-    form_columns = ("cadnum", "area", "ownership", "purpose", "address",)
-    column_searchable_list = ("cadnum",)
 
-
-class ArchiveView(CadastreView):
-    """
-        Managing a model of a land plot with archive land cadastre data.
-    """
-    pass
-
-
-class LandView(CadastreView):
-    """
-        Managing a model of a land plot without a cadastral number.
-    """
-    pass
-
-
-#   Parameters ---------------------------------------------------------------------------------------------------------
-class OwnershipView(ModelView):
-    """
-        Managing a model of form of land use ownership.
-    """
-    pass
-
-
-class CategoryView(ModelView):
-    """
-        Managing a model of category of land for the main purpose.
-    """
-    pass
-
-
-class PurposeView(ModelView):
-    """
-        Managing a model of intended purpose of the site within the main category of land.
-    """
-    pass
+    for _ in value:
+        exec(f"class {_}View(ModelView):\n\t"
+             f"{attributes if key == 'Layers' else 'pass'}")

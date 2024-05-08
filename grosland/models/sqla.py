@@ -6,15 +6,16 @@ from flask_security import UserMixin, RoleMixin, hash_password, current_user
 
 from geoalchemy2 import Geometry
 
+from grosland.dictionary import main_dictionary
+
 from shapely.wkb import loads
 
 from sqlalchemy import ForeignKey, Column, String, Integer, DECIMAL, Boolean, Date, DateTime, event
 from sqlalchemy.orm import DeclarativeBase, relationship, backref, declared_attr
 
 
-__all__ = [
-    "Base", "Users", "Roles", "History", "Revision", "Land", "Cadastre", "Archive", "Ownership", "Category", "Purpose"
-]
+__all__ = ["Base", "Users", "Roles", "History", "Revision"] + \
+          [_ + "View" for _ in value for key, value in main_dictionary.items()]
 
 
 #   Base ---------------------------------------------------------------------------------------------------------------
@@ -54,13 +55,6 @@ class GeometryMixin:
             Convert WKBElement to Geojson format from polygonal object.
         :return: Geojson
         """
-        polygons_coordinates = []
-
-        for polygon in loads(bytes.fromhex(str(self.geometry))).geoms:
-            exterior_coordinates = [list(coord) for coord in polygon.exterior.coords]
-            interiors_coordinates = [[list(coord) for coord in interior.coords] for interior in polygon.interiors]
-            polygons_coordinates.append([exterior_coordinates] + interiors_coordinates)
-
         geojson = {
             "type": "FeatureCollection",
             "features": [{
@@ -72,7 +66,11 @@ class GeometryMixin:
                 },
                 "geometry": {
                     "type": "MultiPolygon",
-                    "coordinates": polygons_coordinates
+                    "coordinates": [
+                        [[list(coord) for coord in polygon.exterior.coords]] +
+                        [[list(coord) for coord in interior.coords] for interior in polygon.interiors]
+                        for polygon in loads(bytes.fromhex(str(self.geometry))).geoms
+                    ]
                 }
             }]
         }
@@ -196,87 +194,25 @@ class Revision(Base):
         return self.date
 
 
-#   ATU ----------------------------------------------------------------------------------------------------------------
-class State(Base, GeometryMixin, CodeDescMixin):
-    """
-        Polygonal object.
-        State of Ukraine.
-    """
-    pass
+#   ATU / Layers / Parameters ------------------------------------------------------------------------------------------
+for key, value in {
+    "Atu": ("State", "District", "Council", "Village"),
+    "Layers": ("Cadastre", "Archive", "Land"),
+    "Parameters": ("Ownership", "Category", "Purpose"),
+}.items():
+    other_mixins = "CodeDescMixin, CategoryMixin"
 
+    if key == "Atu":
+        other_mixins = "GeometryMixin, CodeDescMixin"
 
-class District(Base, GeometryMixin, CodeDescMixin):
-    """
-        Polygonal object.
-        Old districts of Ukrane.
-    """
-    pass
+    elif key == "Layers":
+        other_mixins = "GeometryMixin, ParametersMixin"
 
+    elif key == "Parameters":
+        other_mixins = "CodeDescMixin"
 
-class Council(Base, GeometryMixin, CodeDescMixin):
-    """
-        Polygonal object.
-        Old councils of Ukrane.
-    """
-    pass
-
-
-class Village(Base, GeometryMixin, CodeDescMixin):
-    """
-        Polygonal object.
-        Villages of Ukrane.
-    """
-    pass
-
-
-#   Layers -------------------------------------------------------------------------------------------------------------
-class Cadastre(Base, GeometryMixin, ParametersMixin):
-    """
-        Main polygonal object.
-        Describes a plot of lands with actual land cadastre data.
-    """
-    pass
-
-
-class Archive(Base, GeometryMixin, ParametersMixin):
-    """
-        Main polygonal object.
-        Describes a plot of lands with archive land cadastre data.
-    """
-    pass
-
-
-class Land(Base, GeometryMixin, ParametersMixin):
-    """
-        Polygonal object.
-        Describes a plot of land without a cadastral number.
-    """
-    pass
-
-
-#   Parameters ---------------------------------------------------------------------------------------------------------
-class Ownership(Base, CodeDescMixin):
-    """
-        Additional parameter for main polygonal objects.
-        Describes the form of land use ownership.
-    """
-    pass
-
-
-class Category(Base, CodeDescMixin):
-    """
-        Additional parameter for all polygonal objects.
-        Describes the category of land for the main purpose.
-    """
-    pass
-
-
-class Purpose(Base, CodeDescMixin, CategoryMixin):
-    """
-        Additional parameter for main polygonal objects.
-        Describes the intended purpose of the site within the main category of land.
-    """
-    pass
+    for _ in value:
+        exec(f"class {_}(Base, {other_mixins}): pass")
 
 
 #   Event --------------------------------------------------------------------------------------------------------------

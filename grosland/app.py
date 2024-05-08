@@ -6,6 +6,8 @@ from flask_admin import Admin
 
 from flask_security import Security, SQLAlchemySessionUserDatastore
 
+from grosland.dictionary import main_dictionary
+
 from grosland.models import *
 
 from sqlalchemy import create_engine
@@ -31,18 +33,8 @@ security = Security(app, datastore)
 
 #   Flask-Admin --------------------------------------------------------------------------------------------------------
 admin = Admin(app, index_view=AdminView())
+main_dictionary.update({"Main": ("Users", "History", "Revision")})
 
-admin.add_category(name=("Layers", "Parameters",))
-admin.add_views(
-    UsersView(Users, session),
-    HistoryView(History, session),
-    RevisionView(Revision, session),
-
-    LandView(Land, session, category="Layers"),
-    CadastreView(Cadastre, session, category="Layers"),
-    ArchiveView(Archive, session, category="Layers"),
-
-    OwnershipView(Ownership, session, category="Parameters"),
-    CategoryView(Category, session, category="Parameters"),
-    PurposeView(Purpose, session, category="Parameters"),
-)
+for key, value in main_dictionary.items():
+    for _ in value:
+        eval(f"admin.add_view({_}View({_}, session, category='{key}'))")
