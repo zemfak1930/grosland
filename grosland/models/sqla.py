@@ -14,8 +14,10 @@ from sqlalchemy import ForeignKey, Column, String, Integer, DECIMAL, Boolean, Da
 from sqlalchemy.orm import DeclarativeBase, relationship, backref, declared_attr
 
 
-__all__ = ["Base", "Users", "Roles", "History", "Revision"] + \
-          [_ + "View" for _ in value for key, value in main_dictionary.items()]
+__all__ = ["Base", "Users", "Roles", "History", "Revision"]
+
+for key, value in main_dictionary.items():
+    __all__.extend([_ for _ in value])
 
 
 #   Base ---------------------------------------------------------------------------------------------------------------

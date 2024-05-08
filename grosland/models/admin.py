@@ -11,8 +11,10 @@ from grosland.dictionary import main_dictionary
 import uuid
 
 
-__all__ = ["AdminView", "UsersView", "HistoryView", "RevisionView"] + \
-          [_ + "View" for _ in value for key, value in main_dictionary.items()]
+__all__ = ["AdminView", "UsersView", "HistoryView", "RevisionView"]
+
+for key, value in main_dictionary.items():
+    __all__.extend([_ + "View" for _ in value])
 
 
 #   Base ---------------------------------------------------------------------------------------------------------------
