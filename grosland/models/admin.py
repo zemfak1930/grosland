@@ -75,7 +75,7 @@ class RevisionView(ModelView):
 #   ATU / Layers / Parameters ------------------------------------------------------------------------------------------
 for key, value in main_dictionary.items():
     attributes = """
-        column_list = ("id", "cadnum", "area", "ownership", "purpose.category", "purpose", "address",)\n
+        column_list = ("id", "cadnum", "area", "ownership", "purpose", "address",)\n
         form_columns = ("cadnum", "area", "ownership", "purpose", "address",)\n
         column_searchable_list = ("cadnum",)
     """

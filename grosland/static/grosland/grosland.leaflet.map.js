@@ -6,7 +6,6 @@ var maxZoom = 18;
 var mainLayers = {
     archive:    { color: '#CD5C5C' },
     cadastre:   { color: '#87CEEB' },
-//    land:       { color: '#DA70D6' },
 };
 
 //  Base functions -----------------------------------------------------------------------------------------------------
@@ -69,7 +68,6 @@ for (let key in mainLayers) {
             vectorTileLayerStyles: {
                 cadastre:   createStyle(desiredFillColor=mainLayers[key].color, desiredOpacity=0.4),
                 archive:    createStyle(desiredFillColor=mainLayers[key].color, desiredOpacity=0.4),
-//                land:       createStyle(desiredFillColor=mainLayers[key].color, desiredOpacity=0.4),
             },
         }
     )
@@ -96,7 +94,7 @@ for (let key in mainLayers) {
         let tooltip = L.tooltip()
         .setLatLng(event.latlng)
         .setContent(
-            ((key === 'land') ? 'Ідентифікатор ділянки: ' : 'Кадастровий номер: ') + cadnum
+            'Кадастровий номер: ' + cadnum
             + '<br>'
             + 'Площа: ' + area + ' га',
             { className: 'tooltip' }
@@ -123,7 +121,6 @@ L.control.layers({
     // overlayMaps
     'Кадастр': mainLayers.cadastre.overlay.addTo(map),
     'Архів': mainLayers.archive.overlay,
-//    'Не зареєстровані': mainLayers.land.overlay.addTo(map),
 }).addTo(map);
 
 //  ATU Layers ---------------------------------------------------------------------------------------------------------

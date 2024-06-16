@@ -64,7 +64,10 @@ class GeometryMixin:
                 "properties": {
                     "id": self.id,
                     "area": float(self.area),
-                    "address": self.address
+                    "address": self.address,
+                    "cadnum": self.cadnum,
+                    "ownership": self.ownership_code + " " + self.ownership.desc + " власність",
+                    "purpose": self.purpose_code + " " + self.purpose.desc
                 },
                 "geometry": {
                     "type": "MultiPolygon",
@@ -76,19 +79,6 @@ class GeometryMixin:
                 }
             }]
         }
-
-        if self.__tablename__ in ["cadastre", "archive"]:
-            geojson["features"][0]["properties"].update({
-                "cadnum": self.cadnum,
-                "category": self.purpose.category.code + " " + self.purpose.category.desc,
-                "ownership": self.ownership_code + " " + self.ownership.desc + " власність",
-                "purpose": self.purpose_code + " " + self.purpose.desc
-            })
-
-        elif self.__tablename__ in ["land"]:
-            geojson["features"][0]["properties"].update({
-                "category": self.category.code + " " + self.category.desc,
-            })
 
         return geojson
 
@@ -120,20 +110,6 @@ class ParametersMixin:
 
     def __str__(self):
         return self.cadnum
-
-
-class CategoryMixin:
-    """
-        Additional parameters for all polygonal objects.
-    """
-    @declared_attr
-    def category_code(self):
-        return Column(String(3), ForeignKey("category.code"), nullable=False)
-
-    @declared_attr
-    def category(self):
-        return relationship("Category", backref=backref(self.__tablename__))
-
 
 #   Users --------------------------------------------------------------------------------------------------------------
 class Users(Base, UserMixin):
@@ -183,7 +159,7 @@ class History(Base):
 
     @declared_attr
     def user(self):
-        return relationship("Users", backref=backref(self.__tablename__))
+        return relationship("Users", backref=backref(self.__tablename__, lazy="dynamic"))
 
 
 class Revision(Base):
@@ -197,12 +173,7 @@ class Revision(Base):
 
 
 #   ATU / Layers / Parameters ------------------------------------------------------------------------------------------
-for key, value in {
-    "Atu": ("State", "District", "Council", "Village"),
-    "Layers": ("Cadastre", "Archive", "Land"),
-    "Parameters": ("Ownership", "Category", "Purpose"),
-}.items():
-    other_mixins = "CodeDescMixin, CategoryMixin"
+for key, value in main_dictionary.items():
 
     if key == "Atu":
         other_mixins = "GeometryMixin, CodeDescMixin"
