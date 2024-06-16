@@ -87,6 +87,16 @@ for (let key in mainLayers) {
         //  Override ID
         cadnum = properties.cadnum;
         area = properties.area;
+        address = properties.address;
+
+        if (address) {
+            address = address.slice(0, address.indexOf('район') + 6)
+            + '<br>'
+            + '&emsp;&emsp;&emsp;&ensp;&nbsp;'
+            + address.slice(address.indexOf('район') + 6)
+        } else {
+            address = 'Не визначено'
+        }
 
         //  Set style for selected cadastre
         mainLayers[key].overlay.setFeatureStyle(cadnum, createStyle(desiredFillColor=mainLayers[key].color, desiredOpacity=0.8));
@@ -96,7 +106,9 @@ for (let key in mainLayers) {
         .setContent(
             'Кадастровий номер: ' + cadnum
             + '<br>'
-            + 'Площа: ' + area + ' га',
+            + 'Площа: ' + area + ' га'
+            + '<br>'
+            + 'Адреса: ' + address,
             { className: 'tooltip' }
         )
         .addTo(map);
@@ -131,6 +143,7 @@ L.control.layers({
         minZoom: (item === 'village') ? 13 : minZoom,
         transparent: true,
         version: '1.1.0',
+        zIndex: 3,
     }).addTo(map);
 });
 
