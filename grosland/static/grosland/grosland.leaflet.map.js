@@ -124,6 +124,54 @@ for (let key in mainLayers) {
     };
 };
 
+// Measurement ---------------------------------------------------------------------------------------------------------
+var drawnItems = new L.FeatureGroup();
+map.addLayer(drawnItems);
+
+var drawControl = new L.Control.Draw({
+    draw: {
+        polygon: {
+            shapeOptions: {
+                color: '#000000',  // Цвет линии
+                weight: 1,         // Толщина линии
+                fillOpacity: 0.4,  // Прозрачность заливки
+                fillColor: '#FF69B4' // Цвет заливки
+            }
+        },
+        polyline: false,
+        rectangle: false,
+        circle: false,
+        marker: false,
+        circlemarker: false
+    },
+    edit: {
+        featureGroup: drawnItems,
+        remove: true
+    }
+});
+map.addControl(drawControl);
+
+map.on('draw:created', function (e) {
+    var type = e.layerType,
+        layer = e.layer,
+        myGeojson = layer.toGeoJSON();
+
+    if (type === 'polygon') {
+        var areaHectares = (L.GeometryUtil.geodesicArea(layer.getLatLngs()[0]) / 10000).toFixed(4);
+
+        let landTooltip = L.tooltip()
+        .setLatLng(layer.getBounds().getCenter())
+        .setContent('Площа: ' + areaHectares + ' га')
+        .addTo(map);
+
+        layer.on('click', function (e) {
+            landTooltip.setLatLng(e.latlng).openOn(map);
+        });
+    }
+
+    drawnItems.addLayer(layer);
+});
+
 //  LayerControl -------------------------------------------------------------------------------------------------------
 L.control.layers({
     // baseMaps
@@ -133,6 +181,7 @@ L.control.layers({
     // overlayMaps
     'Кадастр': mainLayers.cadastre.overlay.addTo(map),
     'Архів': mainLayers.archive.overlay,
+    'Мої слої': drawnItems,
 }).addTo(map);
 
 //  ATU Layers ---------------------------------------------------------------------------------------------------------
