@@ -4,6 +4,8 @@ from flask import Flask
 
 from flask_admin import Admin
 
+from flask_caching import Cache
+
 from flask_security import Security, SQLAlchemySessionUserDatastore
 
 from grosland.dictionary import main_dictionary
@@ -17,6 +19,17 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 #   Flask --------------------------------------------------------------------------------------------------------------
 app = Flask(__name__)
 app.config.from_object(Config)
+
+
+#   Flask-Caching ------------------------------------------------------------------------------------------------------
+cache = Cache(
+    app=app,
+    config={
+        "CACHE_TYPE": "FileSystemCache",
+        "CACHE_DIR": "/temp/flask_cache",
+        "CACHE_DEFAULT_TIMEOUT": 3600
+    }
+)
 
 
 #   SQLAlchemy ---------------------------------------------------------------------------------------------------------

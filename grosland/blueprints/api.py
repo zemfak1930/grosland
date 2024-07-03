@@ -2,7 +2,7 @@ from flask import abort, Blueprint, jsonify, request
 
 from flask_security import login_required, current_user
 
-from grosland.app import session
+from grosland.app import cache, session
 from grosland.models import Cadastre, Archive, Land
 
 from geoalchemy2.shape import from_shape
@@ -15,6 +15,7 @@ api = Blueprint('api', __name__, url_prefix="/api")
 
 @api.route("/")
 @login_required
+@cache.cached()
 def index():
     """
         Main page for api.
@@ -33,54 +34,37 @@ def get_parcels_list():
         "Cadastre": ["5121680800:01:001:0025", "5121680800:01:001:0026", ...]
     }
     """
-    parcels = {}
-    base_operator = ["==", ">=", "<=", "!="]
-    arg_area = None
+    parcels = {"Archive": [], "Cadastre": []}
 
     for model in [Cadastre, Archive]:
-        query_filter = []
+        query_filters = []
 
         for item in ["cadnum", "area", "ownership_code", "purpose_code", "address"]:
-            if request.args.get(item):
-                #   Params "area"   ------------------------------------------------------------------------------------
+            value = request.args.get(item)
+
+            if value:
                 if item == "area":
-                    area = request.args.get(item)
-                    operator = area[:2]
-
+                    operator = value[:2]
                     try:
-                        arg_area = float(area[2:].replace(",", "."))
+                        arg_area = float(value[2:].replace(",", "."))
                     except ValueError:
-                        pass
+                        continue
 
-                    if operator in base_operator and arg_area and arg_area >= 0:
-                        for op in base_operator:
-                            if op == operator:
-                                query_filter.append(
-                                    eval(f"model.{item} {operator} {str(arg_area)}")
-                                )
-
-                #   Params "cadnum" / "ownership_code" / "purpose_code" / "address" ------------------------------------
+                    if operator in ["==", ">=", "<=", "!="] and arg_area >= 0:
+                        query_filters.append(eval(f"model.{item} {operator} {arg_area}"))
                 else:
-                    query_filter.append(
-                        eval(
-                            f"model.{item}.ilike('" +
-                            ("%" if item in ["address", "cadnum"] else "") +    # If we have address/cadnum parameter
-                            f"{request.args.get(item)}%')"
-                        )
-                    )
+                    query_filters.append(eval(f"model.{item}.ilike('%{value}%')"))
 
-        #   Run filter  ------------------------------------------------------------------------------------------------
-        parcels.update({
-            model.__name__: [
-                item.cadnum for item in session.query(model).filter(*query_filter).order_by(model.cadnum.asc()).all()
-            ]
-        })
+        parcels[model.__name__].extend(
+            item.cadnum for item in session.query(model).filter(*query_filters).order_by(model.cadnum.asc()).all()
+        )
 
     return jsonify(parcels)
 
 
 @api.route("/parcels/<cadnum>/",  methods=["GET"])
 @login_required
+@cache.cached()
 def get_parcel(cadnum):
     """
          Search for land area by cadastral and archive layers.
@@ -125,13 +109,17 @@ def delete_polygon():
         cadnum=request.json.get('cadnum', None)
     ).first()
 
-    session.delete(land)
-    session.commit()
+    if land:
+        session.delete(land)
+        session.commit()
 
-    return "200"
+        return "200"
+
+    abort(404)
 
 
 @api.route("/email", methods=["GET"])
 @login_required
+@cache.cached()
 def user_email():
     return jsonify({"email": current_user.email})

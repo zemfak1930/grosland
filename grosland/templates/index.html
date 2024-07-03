@@ -7,36 +7,35 @@
 {% block link %}
     <!--  Bootstrap  -->
     <link href="/static/bootstrap/bootstrap.min.css" rel="stylesheet">
-    <script src="/static/bootstrap/bootstrap.bundle.min.js"></script>
+    <script src="/static/bootstrap/bootstrap.bundle.min.js" defer></script>
 
     <!--  Leaflet  -->
     <link href="/static/leaflet/leaflet.css" rel="stylesheet">
-    <script src="/static/leaflet/leaflet.js"></script>
+    <script src="/static/leaflet/leaflet.js" defer></script>
 
     <!--  Jquery  -->
-    <script src="/static/jquery/jquery.3.7.1.min.js"></script>
-    <script src="/static/jquery/jquery.ajax.min.js"></script>
-    <script src="/static/jquery/jquery.maskedinput.min.js"></script>
+    <script src="/static/jquery/jquery.3.7.1.min.js" defer></script>
+    <script src="/static/jquery/jquery.maskedinput.min.js" defer></script>
 
     <!--  My .css  -->
     <link href="/static/grosland/grosland.leaflet.map.css" rel="stylesheet">
 
     <!--  Leaflet Vector Grid  -->
-    <script src="/static/vectorgrid/leaflet.vectorgrid.mins.js"></script>
+    <script src="/static/vectorgrid/leaflet.vectorgrid.mins.js" defer></script>
 
     <!--  Restore View  -->
-    <script src="/static/restoreview/leaflet.restoreview.js"></script>
+    <script src="/static/restoreview/leaflet.restoreview.js" defer></script>
 
     <!--  Easy Print  -->
-    <script src="/static/easyprint/leaflet.easyprint.js"></script>
+    <script src="/static/easyprint/leaflet.easyprint.js" defer></script>
 
     <!--  Locate  -->
     <link href="/static/locate/leaflet.locate.min.css" rel="stylesheet">
-    <script src="/static/locate/leaflet.locate.min.js"></script>
+    <script src="/static/locate/leaflet.locate.min.js" defer></script>
 
     <!--  Leaflet Draw JavaScript  -->
     <link href="/static/draw/leaflet.draw.css" rel="stylesheet">
-    <script src="/static/draw/leaflet.draw.js"></script>
+    <script src="/static/draw/leaflet.draw.js" defer></script>
 {% endblock link %}
 
 {% block content %}
@@ -80,17 +79,18 @@
 {% block script %}
     <!--  My .js  -->
     <script>
-        var myVariable;
+        $(document).ready(function() {
+            var myVariable;
 
-        fetch('/api/email')
-            .then(response => response.json())
-            .then(data => {
-                myVariable = data.email;
-            })
-            .catch(error => {
-                console.error('Помилка отримання даних:', error);
-            });
+            $.getJSON('/api/email')
+                .done(function(data) {
+                    myVariable = data.email;
+                })
+                .fail(function(error) {
+                    console.error('Помилка отримання даних:', error);
+                });
+        });
     </script>
-    <script src="/static/grosland/grosland.leaflet.map.js"></script>
-    <script src="/static/grosland/grosland.jquery.maskedinput.cadnum.js"></script>
+    <script src="/static/grosland/grosland.leaflet.map.js" defer></script>
+    <script src="/static/grosland/grosland.jquery.maskedinput.cadnum.js" defer></script>
 {% endblock %}
