@@ -6,6 +6,7 @@ var maxZoom = 18;
 var mainLayers = {
     archive:    { color: '#CD5C5C' },
     cadastre:   { color: '#87CEEB' },
+    land:       { color: '#FF69B4' },
 };
 
 //  Base functions -----------------------------------------------------------------------------------------------------
@@ -27,6 +28,19 @@ function saveHistory(message) {
     });
 };
 
+function polygonAction(data, method) {
+    fetch('/api/lands', {
+        method: method,
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: data,
+    }).then(data => {
+        map.removeLayer(mainLayers.land.overlay);
+        map.addLayer(mainLayers.land.overlay);
+    })
+}
+
 //  Map of Leaflet -----------------------------------------------------------------------------------------------------
 var map = L.map('map', {
     minZoom: minZoom,
@@ -46,10 +60,10 @@ var drawControl = new L.Control.Draw({
     draw: {
         polygon: {
             shapeOptions: {
-                color: '#000000',  // Цвет линии
-                weight: 1,         // Толщина линии
-                fillOpacity: 0.4,  // Прозрачность заливки
-                fillColor: '#FF69B4' // Цвет заливки
+                color: '#000000',
+                weight: 1,
+                fillOpacity: 0.4,
+                fillColor: '#FF69B4'
             }
         },
         polyline: false,
@@ -57,10 +71,6 @@ var drawControl = new L.Control.Draw({
         circle: false,
         marker: false,
         circlemarker: false
-    },
-    edit: {
-        featureGroup: drawnItems,
-        remove: true
     }
 });
 map.addControl(drawControl);
@@ -76,7 +86,6 @@ map.on('draw:created', function (e) {
         let landTooltip = L.tooltip()
         .setLatLng(layer.getBounds().getCenter())
         .setContent('Площа: ' + areaHectares + ' га')
-        .addTo(map);
 
         layer.on('click', function (e) {
             landTooltip.setLatLng(e.latlng).openOn(map);
@@ -84,6 +93,7 @@ map.on('draw:created', function (e) {
     }
 
     drawnItems.addLayer(layer);
+    polygonAction(JSON.stringify({ geojson: JSON.stringify(myGeojson), area: areaHectares }), 'POST')
 });
 
 //  Restore View -------------------------------------------------------------------------------------------------------
@@ -116,6 +126,13 @@ for (let key in mainLayers) {
             vectorTileLayerStyles: {
                 cadastre:   createStyle(desiredFillColor=mainLayers[key].color, desiredOpacity=0.4),
                 archive:    createStyle(desiredFillColor=mainLayers[key].color, desiredOpacity=0.4),
+                land:       (properties, zoom) => {
+                    if (properties.note.indexOf(myVariable) === 0 ) {
+                        return createStyle(desiredFillColor=mainLayers[key].color, desiredOpacity=0.4);
+                    } else {
+                        return [];
+                    }
+                }
             },
         }
     )
@@ -152,7 +169,7 @@ for (let key in mainLayers) {
         let tooltip = L.tooltip()
         .setLatLng(event.latlng)
         .setContent(
-            'Кадастровий номер: ' + cadnum
+            ((key === 'land') ? 'ID: ' : 'Кадастровий номер: ') + cadnum
             + '<br>'
             + 'Площа: ' + area + ' га'
             + '<br>'
@@ -170,6 +187,20 @@ for (let key in mainLayers) {
             saveHistory(cadnum);
         })
     };
+
+    if (key === 'land') {
+        mainLayers[key].overlay.on('contextmenu', function(e) {
+            e.originalEvent.preventDefault();
+
+            if (e.layer.feature) {
+                var properties = e.layer.feature.properties;
+            } else {
+                var properties = e.layer.properties;
+            };
+
+            polygonAction(JSON.stringify({ cadnum: properties.cadnum, note: properties.note }), 'DELETE')
+        })
+    }
 };
 
 //  LayerControl -------------------------------------------------------------------------------------------------------
@@ -181,7 +212,7 @@ L.control.layers({
     // overlayMaps
     'Кадастр': mainLayers.cadastre.overlay.addTo(map),
     'Архів': mainLayers.archive.overlay,
-    'Мої слої': drawnItems,
+    'Мої слої': mainLayers.land.overlay.addTo(map),
 }).addTo(map);
 
 //  ATU Layers ---------------------------------------------------------------------------------------------------------

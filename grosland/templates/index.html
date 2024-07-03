@@ -79,6 +79,18 @@
 
 {% block script %}
     <!--  My .js  -->
+    <script>
+        var myVariable;
+
+        fetch('/api/email')
+            .then(response => response.json())
+            .then(data => {
+                myVariable = data.email;
+            })
+            .catch(error => {
+                console.error('Помилка отримання даних:', error);
+            });
+    </script>
     <script src="/static/grosland/grosland.leaflet.map.js"></script>
     <script src="/static/grosland/grosland.jquery.maskedinput.cadnum.js"></script>
 {% endblock %}

@@ -1,9 +1,13 @@
 from flask import abort, Blueprint, jsonify, request
 
-from flask_security import login_required
+from flask_security import login_required, current_user
 
 from grosland.app import session
-from grosland.models import Cadastre, Archive
+from grosland.models import Cadastre, Archive, Land
+
+from geoalchemy2.shape import from_shape
+
+from shapely.geometry import shape
 
 
 api = Blueprint('api', __name__, url_prefix="/api")
@@ -89,3 +93,45 @@ def get_parcel(cadnum):
             return jsonify(parcel.wkb_to_geojson())
 
     return abort(404)
+
+
+@api.route("/lands", methods=["POST"])
+@login_required
+def create_polygon():
+    count = session.query(Land.id).order_by(Land.id.desc()).first()
+
+    new_polygon = Land(
+        cadnum=count[0] + 1 if count is not None else 1,
+        area=float(request.json["area"]),
+        ownership_code="0",
+        purpose_code="0",
+        geometry=from_shape(shape({
+            "type": "MULTIPOLYGON",
+            "coordinates": [eval(request.json["geojson"])["geometry"]["coordinates"]]
+        }), srid=4326),
+        note=current_user.email
+    )
+
+    session.add(new_polygon)
+    session.commit()
+
+    return "200"
+
+
+@api.route("/lands", methods=["DELETE"])
+@login_required
+def delete_polygon():
+    land = session.query(Land).filter_by(
+        cadnum=request.json.get('cadnum', None)
+    ).first()
+
+    session.delete(land)
+    session.commit()
+
+    return "200"
+
+
+@api.route("/email", methods=["GET"])
+@login_required
+def user_email():
+    return jsonify({"email": current_user.email})

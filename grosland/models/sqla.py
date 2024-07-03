@@ -14,7 +14,7 @@ from sqlalchemy import ForeignKey, Column, String, Integer, DECIMAL, Boolean, Da
 from sqlalchemy.orm import DeclarativeBase, relationship, backref, declared_attr
 
 
-__all__ = ["Base", "Users", "Roles", "History", "Revision"]
+__all__ = ["Base", "Users", "Roles", "History", "Revision", "Land"]
 
 for key, value in main_dictionary.items():
     __all__.extend([_ for _ in value])
@@ -185,7 +185,14 @@ for key, value in main_dictionary.items():
         other_mixins = "CodeDescMixin"
 
     for _ in value:
+        if _ == "Land":
+            continue
+
         exec(f"class {_}(Base, {other_mixins}): pass")
+
+
+class Land(Base, GeometryMixin, ParametersMixin):
+    note = Column(String)
 
 
 #   Event --------------------------------------------------------------------------------------------------------------
