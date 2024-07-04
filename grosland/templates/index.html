@@ -79,17 +79,16 @@
 {% block script %}
     <!--  My .js  -->
     <script>
-        $(document).ready(function() {
-            var myVariable;
+        var myVariable;
 
-            $.getJSON('/api/email')
-                .done(function(data) {
-                    myVariable = data.email;
-                })
-                .fail(function(error) {
-                    console.error('Помилка отримання даних:', error);
-                });
-        });
+        fetch('/api/email')
+            .then(response => response.json())
+            .then(data => {
+                myVariable = data.email;
+            })
+            .catch(error => {
+                console.error('Помилка отримання даних:', error);
+            });
     </script>
     <script src="/static/grosland/grosland.leaflet.map.js" defer></script>
     <script src="/static/grosland/grosland.jquery.maskedinput.cadnum.js" defer></script>

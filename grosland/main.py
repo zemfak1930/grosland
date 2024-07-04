@@ -2,13 +2,12 @@ from flask import render_template
 
 from flask_security import login_required
 
-from grosland.app import app, cache, session
+from grosland.app import app, session
 
 
 #   Map ----------------------------------------------------------------------------------------------------------------
 @app.route("/", methods=["GET"])
 @login_required
-@cache.cached()
 def index():
     """
         Display a map with layers.
