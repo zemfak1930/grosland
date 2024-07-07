@@ -142,26 +142,50 @@ for (const key in mainLayers) {
                 },
             }
         )
-    .on('click', (event) => {
-        let cadnum, area, address;
-        const properties = event.layer.feature ? event.layer.feature.properties : event.layer.properties;
+    .on('click', function(event) {
+        //  Get properties of cadastre
+        if (event.layer.feature) {
+            var properties = event.layer.feature.properties;
+        } else {
+            var properties = event.layer.properties;
+        };
 
-        if (properties) {
-            mainLayers[key].overlay.setFeatureStyle(properties.cadnum, createStyle(layerConfig.color, 0.4));
-            cadnum = properties.cadnum;
-            area = properties.area;
-            address = properties.address ? `${properties.address.slice(0, properties.address.indexOf('район') + 6)}<br>&emsp;&emsp;&emsp;&ensp;&nbsp;${properties.address.slice(properties.address.indexOf('район') + 6)}` : 'Не визначено';
+        //  Set default cadastre style
+        if (properties != 0) {
+            mainLayers[key].overlay.setFeatureStyle(cadnum, createStyle(desiredFillColor=mainLayers[key].color, desiredOpacity=0.4))
+        };
 
-            mainLayers[key].overlay.setFeatureStyle(cadnum, createStyle(layerConfig.color, 0.8));
+        //  Override ID
+        cadnum = properties.cadnum;
+        area = properties.area;
+        address = properties.address;
 
-            const tooltip = L.tooltip()
-                .setLatLng(event.latlng)
-                .setContent(`${(key === 'land' ? 'ID' : 'Кадастровий номер')}: ${cadnum}<br>Площа: ${area} га<br>Адреса: ${address}`)
-                .addTo(map);
-
-            saveHistory(cadnum);
+        if (address) {
+            address = address.slice(0, address.indexOf('район') + 6)
+            + '<br>'
+            + '&emsp;&emsp;&emsp;&ensp;&nbsp;'
+            + address.slice(address.indexOf('район') + 6)
+        } else {
+            address = 'Не визначено'
         }
-    })};
+
+        //  Set style for selected cadastre
+        mainLayers[key].overlay.setFeatureStyle(cadnum, createStyle(desiredFillColor=mainLayers[key].color, desiredOpacity=0.8));
+
+        let tooltip = L.tooltip()
+        .setLatLng(event.latlng)
+        .setContent(
+            ((key === 'land') ? 'ID: ' : 'Кадастровий номер: ') + cadnum
+            + '<br>'
+            + 'Площа: ' + area + ' га'
+            + '<br>'
+            + 'Адреса: ' + address,
+            { className: 'tooltip' }
+        )
+        .addTo(map);
+
+	    saveHistory(cadnum);
+    });
 
     if (key === 'cadastre') {
         mainLayers[key].overlay.on('dblclick', function() {
@@ -183,8 +207,8 @@ for (const key in mainLayers) {
 
             polygonAction(JSON.stringify({ cadnum: properties.cadnum, note: properties.note }), 'DELETE')
         })
-    }
-}
+    }};
+};
 
 //  LayerControl -------------------------------------------------------------------------------------------------------
 L.control.layers({
