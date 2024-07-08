@@ -133,7 +133,7 @@ for (const key in mainLayers) {
                     cadastre: createStyle(layerConfig.color, 0.4),
                     archive: createStyle(layerConfig.color, 0.4),
                     land: (properties, zoom) => {
-                        if (properties.note.indexOf(myVariable) === 0) {
+                        if (properties.address.indexOf(myVariable) === 0) {
                             return createStyle(layerConfig.color, 0.4);
                         } else {
                             return [];

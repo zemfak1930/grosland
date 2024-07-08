@@ -93,7 +93,7 @@ def create_polygon():
             "type": "MULTIPOLYGON",
             "coordinates": [eval(request.json["geojson"])["geometry"]["coordinates"]]
         }), srid=4326),
-        note=current_user.email
+        address=current_user.email
     )
 
     session.add(new_polygon)

@@ -25,7 +25,7 @@ app.config.from_object(Config)
 cache = Cache(
     app=app,
     config={
-        "CACHE_TYPE": "Simple",
+        "CACHE_TYPE": "simple",
         "CACHE_DEFAULT_TIMEOUT": 3600
     }
 )

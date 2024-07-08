@@ -185,14 +185,7 @@ for key, value in main_dictionary.items():
         other_mixins = "CodeDescMixin"
 
     for _ in value:
-        if _ == "Land":
-            continue
-
         exec(f"class {_}(Base, {other_mixins}): pass")
-
-
-class Land(Base, GeometryMixin, ParametersMixin):
-    note = Column(String)
 
 
 #   Event --------------------------------------------------------------------------------------------------------------
