@@ -181,7 +181,7 @@ for (const key in mainLayers) {
         area = properties.area;
         address = properties.address;
 
-        if (address) {
+        if (address && address.includes('область')) {
             address = address.slice(0, address.indexOf('район') + 6)
             + '<br>'
             + '&emsp;&emsp;&emsp;&ensp;&nbsp;'
