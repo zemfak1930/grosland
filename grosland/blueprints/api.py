@@ -120,6 +120,5 @@ def delete_polygon():
 
 @api.route("/email", methods=["GET"])
 @login_required
-@cache.cached()
 def user_email():
     return jsonify({"email": current_user.email})
