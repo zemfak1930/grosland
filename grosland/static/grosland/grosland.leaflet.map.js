@@ -10,6 +10,15 @@ const mainLayers = {
     land: { color: '#FF69B4' },
 };
 
+var mainParams = {
+    nullOwnership: '0',
+    privateOwnership: '100',
+    communalOwnership: '200',
+    stateOwnership: '300'
+}
+
+var paramsFilter = JSON.parse(JSON.stringify(mainParams));
+
 //  Base functions -----------------------------------------------------------------------------------------------------
 const createStyle = (desiredFillColor, desiredOpacity) => ({
     stroke: true,
@@ -130,7 +139,19 @@ for (const key in mainLayers) {
                 interactive: true,
                 getFeatureId: (feature) => feature.properties.cadnum,
                 vectorTileLayerStyles: {
-                    cadastre: createStyle(layerConfig.color, 0.4),
+                    cadastre: (properties, zoom) => {
+                        if (properties.ownership_code.indexOf(paramsFilter.nullOwnership) === 0) {
+                            return createStyle(layerConfig.color, 0.4);
+                        } else if (properties.ownership_code.indexOf(paramsFilter.privateOwnership) === 0) {
+                            return createStyle(layerConfig.color, 0.4);
+                        } else if (properties.ownership_code.indexOf(paramsFilter.communalOwnership) === 0) {
+                            return createStyle(layerConfig.color, 0.4);
+                        } else if (properties.ownership_code.indexOf(paramsFilter.stateOwnership) === 0) {
+                            return createStyle(layerConfig.color, 0.4);
+                        } else {
+                            return [];
+                        }
+                    },
                     archive: createStyle(layerConfig.color, 0.4),
                     land: (properties, zoom) => {
                         if (properties.address.indexOf(myVariable) === 0) {
@@ -211,14 +232,62 @@ for (const key in mainLayers) {
 };
 
 //  LayerControl -------------------------------------------------------------------------------------------------------
-L.control.layers({
-    'OpenStreetMap': L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map),
-    'EsriMap': L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}')
-}, {
-    'Кадастр': mainLayers.cadastre.overlay.addTo(map),
-    'Архів': mainLayers.archive.overlay,
-    'Мої слої': mainLayers.land.overlay.addTo(map),
-}).addTo(map);
+L.Control.CustomLayers = L.Control.extend({
+    onAdd: function(map) {
+        L.control.layers({
+            'OpenStreetMap': L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map),
+            'EsriMap': L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}')
+        }, {
+            'Кадастр': mainLayers.cadastre.overlay.addTo(map),
+            'Архів': mainLayers.archive.overlay,
+            'Мої слої': mainLayers.land.overlay.addTo(map),
+        }, {
+            collapsed: true,
+        }).addTo(map);
+
+        var div = L.DomUtil.create('div', 'custom-layers-control');
+
+        div.innerHTML += `
+            <button class="accordion">Власність</button>
+            <div class="panel">
+                <label><input type="checkbox" id="nullOwnershipCheckbox" checked> Не визначено </label>
+                <label><input type="checkbox" id="privateOwnershipCheckbox" checked> Приватна </label>
+                <label><input type="checkbox" id="communalOwnershipCheckbox" checked> Комунальна </label>
+                <label><input type="checkbox" id="stateOwnershipCheckbox" checked> Державна </label>
+            </div>
+        `;
+
+        L.DomEvent.disableClickPropagation(div);
+
+        return div;
+    },
+
+    onRemove: function(map) {
+    }
+});
+
+L.control.customLayers = function(opts) {
+    return new L.Control.CustomLayers(opts);
+}
+
+L.control.customLayers({ position: 'topright' }).addTo(map);
+
+map.on('load', function() {
+    var acc = document.getElementsByClassName("accordion");
+    for (var i = 0; i < acc.length; i++) {
+        acc[i].addEventListener("click", function() {
+            this.classList.toggle("active");
+            var panel = this.nextElementSibling;
+            if (panel.style.display === "block") {
+                panel.style.display = "none";
+            } else {
+                panel.style.display = "block";
+            }
+        });
+    }
+})
+
+map.fire('load');
 
 // ATU Layers ----------------------------------------------------------------------------------------------------------
 ['village', 'council', 'district'].forEach((item) => {
@@ -272,3 +341,16 @@ $(document).ready(function() {
         }
     });
 });
+
+//  Create Filter ------------------------------------------------------------------------------------------------------
+for (const filter in paramsFilter) {
+    $('body').on('change', 'input[id="' + filter + 'Checkbox"]', function () {
+        if ($(this).is(':checked')) {
+            paramsFilter[filter] = mainParams[filter];
+        } else {
+            paramsFilter[filter] = null;
+        };
+
+        mainLayers.cadastre.overlay.redraw();
+    });
+};
