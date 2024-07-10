@@ -69,6 +69,7 @@ map.doubleClickZoom.disable();
 //  Leaflet Plugins ----------------------------------------------------------------------------------------------------
 // Measurement ---------------------------------------------------------------------------------------------------------
 const drawnItems = new L.FeatureGroup().addTo(map);
+
 const drawControl = new L.Control.Draw({
     draw: {
         polygon: {
@@ -86,6 +87,7 @@ const drawControl = new L.Control.Draw({
         circlemarker: false
     }
 });
+
 map.addControl(drawControl);
 
 map.on('draw:created', (e) => {
@@ -231,63 +233,46 @@ for (const key in mainLayers) {
     }};
 };
 
-//  LayerControl -------------------------------------------------------------------------------------------------------
-L.Control.CustomLayers = L.Control.extend({
-    onAdd: function(map) {
-        L.control.layers({
-            'OpenStreetMap': L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map),
-            'EsriMap': L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}')
-        }, {
-            'Кадастр': mainLayers.cadastre.overlay.addTo(map),
-            'Архів': mainLayers.archive.overlay,
-            'Мої слої': mainLayers.land.overlay.addTo(map),
-        }, {
-            collapsed: true,
-        }).addTo(map);
-
-        var div = L.DomUtil.create('div', 'custom-layers-control');
-
-        div.innerHTML += `
-            <button class="accordion">Власність</button>
-            <div class="panel">
-                <label><input type="checkbox" id="nullOwnershipCheckbox" checked> Не визначено </label>
-                <label><input type="checkbox" id="privateOwnershipCheckbox" checked> Приватна </label>
-                <label><input type="checkbox" id="communalOwnershipCheckbox" checked> Комунальна </label>
-                <label><input type="checkbox" id="stateOwnershipCheckbox" checked> Державна </label>
-            </div>
-        `;
-
-        L.DomEvent.disableClickPropagation(div);
-
-        return div;
+//  Panel Layers -------------------------------------------------------------------------------------------------------
+var baseLayers = [
+    {
+        name: "OpenStreetMap",
+        layer: L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map),
     },
-
-    onRemove: function(map) {
+    {
+        name: "EsriMap",
+        layer: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'),
     }
+]
+
+var overLayers = [
+    {
+        group: "Слої",
+        collapsed: true,
+        layers: [
+            { name: "Кадастр",  layer: mainLayers.cadastre.overlay.addTo(map) },
+            { name: "Архів",    layer: mainLayers.archive.overlay },
+            { name: "Мої слої", layer: mainLayers.land.overlay.addTo(map) }
+        ]
+    },
+    {
+        group: "Форма власності",
+        collapsed: true,
+        layers: [
+            { name: "Не визначено", layer: new L.Layer(),   id: "nullOwnershipCheckbox" },
+            { name: "Приватна",     layer: new L.Layer(),   id: "privateOwnershipCheckbox" },
+            { name: "Комунальна",   layer: new L.Layer(),   id: "communalOwnershipCheckbox" },
+            { name: "Державна",     layer: new L.Layer(),   id: "stateOwnershipCheckbox" }
+        ]
+    }
+]
+
+var panelLayers = new L.Control.PanelLayers(baseLayers, overLayers, {
+    compact: true,
+    collapsibleGroups: true,
 });
 
-L.control.customLayers = function(opts) {
-    return new L.Control.CustomLayers(opts);
-}
-
-L.control.customLayers({ position: 'topright' }).addTo(map);
-
-map.on('load', function() {
-    var acc = document.getElementsByClassName("accordion");
-    for (var i = 0; i < acc.length; i++) {
-        acc[i].addEventListener("click", function() {
-            this.classList.toggle("active");
-            var panel = this.nextElementSibling;
-            if (panel.style.display === "block") {
-                panel.style.display = "none";
-            } else {
-                panel.style.display = "block";
-            }
-        });
-    }
-})
-
-map.fire('load');
+map.addControl(panelLayers);
 
 // ATU Layers ----------------------------------------------------------------------------------------------------------
 ['village', 'council', 'district'].forEach((item) => {
@@ -354,3 +339,12 @@ for (const filter in paramsFilter) {
         mainLayers.cadastre.overlay.redraw();
     });
 };
+
+//  OwnershipCheckbox checked ------------------------------------------------------------------------------------------
+document.addEventListener('DOMContentLoaded', function() {
+    let elements = document.querySelectorAll('[id$="OwnershipCheckbox"]');
+
+    elements.forEach(function(element) {
+        element.checked = true;
+    });
+});
