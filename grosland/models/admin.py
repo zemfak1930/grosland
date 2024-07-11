@@ -17,7 +17,7 @@ import os
 
 import uuid
 
-from wtforms import StringField, TextAreaFiel
+from wtforms import StringField, TextAreaField
 from wtforms.validators import DataRequired
 
 
