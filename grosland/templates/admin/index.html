@@ -1,6 +1,7 @@
 {% extends 'admin/master.html' %}
 
 {% block body %}
-    <h3><a href="/">Карта</a></h3>
-    <h3><a href="/geoserver/web">Геосервер</a></h3>
+    <h3><a class="nav-link" href="{{ url_for('index') }}">Карта</a></h3>
+    <h3><a class="nav-link" href="/geoserver/web">Геосервер</a></h3>
+    <h3><a class="nav-link" href="{{ url_for('security.logout') }}">Вихід</a></h3>
 {% endblock body %}

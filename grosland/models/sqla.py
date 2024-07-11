@@ -14,7 +14,7 @@ from sqlalchemy import ForeignKey, Column, String, Integer, DECIMAL, Boolean, Da
 from sqlalchemy.orm import DeclarativeBase, relationship, backref, declared_attr
 
 
-__all__ = ["Base", "Users", "Roles", "History", "Revision", "Land"]
+__all__ = ["Base", "Users", "Roles", "History", "Revision", "Land", "Updates"]
 
 for key, value in main_dictionary.items():
     __all__.extend([_ for _ in value])
@@ -170,6 +170,19 @@ class Revision(Base):
 
     def __str__(self):
         return self.date
+
+
+class Updates(Base):
+    """
+        Model for storing data about the latest updates on the site.
+    """
+    title = Column(String(100), nullable=False)
+    content = Column(String(600), nullable=False)
+    image_url = Column(String(100))
+    date = Column(DateTime, default=datetime.datetime.now, nullable=False)
+
+    def __str__(self):
+        return self.title
 
 
 #   ATU / Layers / Parameters ------------------------------------------------------------------------------------------

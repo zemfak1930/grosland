@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Історія оновлень
+{% endblock title %}
+
+{% block link %}
+    <!--  My .css  -->
+    <link href="/static/grosland/grosland.updates.css" rel="stylesheet">
+{% endblock link %}
+
+{% block content %}
+    {% include 'navbar.html' %}
+
+    <h1>Оновлення</h1>
+    <div>
+        {% for update in updates %}
+            <div class="update">
+                <div class="update-content">
+                    <h2>{{ update.title }}</h2>
+                    <p><strong>Дата:</strong> {{ update.date.strftime('%d.%m.%Y %H:%M:%S') }}</p>
+                    <p>{{ update.content }}</p>
+                </div>
+                {% if update.image_url %}
+                    <img src="/static/uploads/{{ update.image_url }}" alt="Image for {{ update.title }}">
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
+
+{% block script %}{% endblock %}

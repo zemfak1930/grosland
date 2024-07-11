@@ -5,10 +5,6 @@
 {% endblock title %}
 
 {% block link %}
-    <!--  Bootstrap  -->
-    <link href="/static/bootstrap/bootstrap.min.css" rel="stylesheet">
-    <script src="/static/bootstrap/bootstrap.bundle.min.js" defer></script>
-
     <!--  Leaflet  -->
     <link href="/static/leaflet/leaflet.css" rel="stylesheet">
     <script src="/static/leaflet/leaflet.js" defer></script>
@@ -44,37 +40,7 @@
 
 {% block content %}
     <!--  Navbar  -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark" aria-label="Offcanvas navbar large" id="navbar">
-        <div class="container-fluid">
-            <!--  Field for input cadastral number  -->
-            <form class="d-flex mt-0 mt-lg-0" role="search" id="input">
-                <input class="form-control me-2" type="search" placeholder="Пошук..." aria-label="Search" id="cadnum" required>
-            </form>
-            <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar2"
-                    aria-controls="offcanvasNavbar2" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="offcanvas offcanvas-end text-bg-dark" tabindex="-1" id="offcanvasNavbar2"
-                 aria-labelledby="offcanvasNavbar2Label">
-                <div class="offcanvas-header">
-                    <h5 class="offcanvas-title" id="offcanvasNavbar2Label">Панель керування</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-                </div>
-                <div class="offcanvas-body">
-                    <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
-                        {% if current_user.has_role('admin') %}
-                            <li class="nav-item">
-                                <a class="nav-link active" aria-current="page" href="{{ url_for('admin.index') }}">Адмінка</a>
-                            </li>
-                        {% endif %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('security.logout') }}">Вихід</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </nav>
+    {% include 'navbar.html' %}
 
     <!--  Map  -->
     <div id="map"></div>
@@ -82,18 +48,7 @@
 
 {% block script %}
     <!--  My .js  -->
-    <script>
-        var myVariable;
-
-        fetch('/api/email')
-            .then(response => response.json())
-            .then(data => {
-                myVariable = data.email;
-            })
-            .catch(error => {
-                console.error('Помилка отримання даних:', error);
-            });
-    </script>
+    <script src="/static/grosland/grosland.leaflet.api.js" defer></script>
     <script src="/static/grosland/grosland.leaflet.map.js" defer></script>
     <script src="/static/grosland/grosland.jquery.maskedinput.cadnum.js" defer></script>
 {% endblock %}

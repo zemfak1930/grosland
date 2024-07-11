@@ -1,0 +1,53 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 80%;
+    margin: auto;
+    overflow: hidden;
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+    padding: 20px 0;
+}
+
+.update {
+    background: #fff;
+    margin: 20px 0;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    display: flex; /* Используем Flexbox для выравнивания элементов */
+    align-items: center; /* Центрируем элементы по вертикали */
+}
+
+.update-content {
+    flex: 1; /* Растягиваем содержимое на всю доступную ширину */
+    padding-right: 20px; /* Отступ справа от содержимого до изображения */
+}
+
+.update h2 {
+    color: #333;
+    margin-top: 0;
+}
+
+.update p {
+    color: #666;
+    line-height: 1.6;
+}
+
+.update img {
+    max-width: 300px; /* Максимальная ширина изображения */
+    height: auto;
+    border-radius: 8px;
+}
+
+.update strong {
+    color: #333;
+}
