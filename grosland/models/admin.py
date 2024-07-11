@@ -17,7 +17,7 @@ import os
 
 import uuid
 
-from wtforms import StringField, TextAreaField, DateTimeLocalField
+from wtforms import StringField, TextAreaFiel
 from wtforms.validators import DataRequired
 
 
@@ -89,7 +89,6 @@ class UpdatesForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired()])
     content = TextAreaField('Content', validators=[DataRequired()])
     image = FileField('Image', validators=[FileAllowed(['jpg', 'png'], 'Images only!')])
-    date = DateTimeLocalField('DateTime', format='%Y-%m-%d', validators=[DataRequired()])
 
 
 class UpdatesView(ModelView):
