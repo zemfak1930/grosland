@@ -3,7 +3,7 @@ from flask import abort, Blueprint, jsonify, request
 from flask_security import login_required, current_user
 
 from grosland.app import cache, session
-from grosland.models import Cadastre, Archive, Land
+from grosland.models import Cadastre, Archive, Land, Ownership, Purpose
 
 from geoalchemy2.shape import from_shape
 
@@ -88,7 +88,7 @@ def create_polygon():
         cadnum=count[0] + 1 if count is not None else 1,
         area=float(request.json["area"]),
         ownership_code="0",
-        purpose_code="0",
+        purpose_code="00.00",
         geometry=from_shape(shape({
             "type": "MULTIPOLYGON",
             "coordinates": [eval(request.json["geojson"])["geometry"]["coordinates"]]
@@ -122,3 +122,21 @@ def delete_polygon():
 @login_required
 def user_email():
     return jsonify({"email": current_user.email})
+
+
+@api.route("/parameters")
+@login_required
+@cache.cached()
+def get_parameters():
+    result = {}
+
+    for model in (Ownership, Purpose):
+        result[model.__tablename__] = {}
+
+        for item in session.query(model).all():
+            result[item.__tablename__][item.code.replace(".", "") + item.__tablename__.title() + "CustomParameter"] = {
+                "code": item.code,
+                "desc": item.desc
+            }
+
+    return jsonify(result)

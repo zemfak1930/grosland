@@ -10,14 +10,8 @@ const mainLayers = {
     land: { color: '#FF69B4' },
 };
 
-var mainParams = {
-    nullOwnership: '0',
-    privateOwnership: '100',
-    communalOwnership: '200',
-    stateOwnership: '300'
-}
+var paramsFilter = createParamsFilter(testParams);
 
-var paramsFilter = JSON.parse(JSON.stringify(mainParams));
 
 //  Base functions -----------------------------------------------------------------------------------------------------
 const createStyle = (desiredFillColor, desiredOpacity) => ({
@@ -56,6 +50,83 @@ const polygonAction = async (data, method) => {
     }
 };
 
+function createCheckbox(testList1) {
+    result = [];
+
+    for (testConst1 in testList1) {
+        result.push({
+            name: testList1[testConst1].code + " " + testList1[testConst1].desc.slice(0, 20) + "...",
+            layer: new L.Layer(),
+            id: testConst1 + "Checkbox" })
+    }
+
+    return result
+};
+
+function createParamsFilter(testList1) {
+    result = {}
+
+    for (item in testList1) {
+        for (let item2 in testList1[item]) {
+            result[item2] = testList1[item][item2].code
+        }
+    }
+
+    return result
+}
+
+function createFilter(testList1) {
+    for (let filter in testList1) {
+
+        $('body').on('change', 'input[id="' + filter + 'Checkbox"]', function() {
+            if ($(this).is(':checked')) {
+                paramsFilter[filter] = testList1[filter].code;
+            } else {
+                paramsFilter[filter] = null;
+            }
+
+            mainLayers.cadastre.overlay.redraw();
+        })
+    }
+}
+
+function filterByParameters(properties, testList1) {
+    const ownershipCodes = [];
+    const purposeCodes = [];
+
+    for (let key in testList1) {
+        if (key.includes("Ownership")) {
+            ownershipCodes.push(testList1[key]);
+        }
+    }
+
+    for (let m in testList1) {
+        if (m.includes("Purpose")) {
+            purposeCodes.push(testList1[m]);
+        }
+    }
+
+
+    let ownershipMatch = false;
+    for (let code1 of ownershipCodes) {
+        if (properties.ownership_code.indexOf(code1) === 0) {
+            ownershipMatch = true;
+            break;
+        }
+    }
+
+    let purposeMatch = false;
+    for (let code2 of purposeCodes) {
+        if (properties.purpose_code.indexOf(code2) === 0) {
+            purposeMatch = true;
+            break;
+        }
+    }
+
+    return purposeMatch && ownershipMatch;
+}
+
+
 //  Map initialization -------------------------------------------------------------------------------------------------
 const map = L.map('map', {
     minZoom: minZoom,
@@ -66,7 +137,6 @@ const map = L.map('map', {
 });
 map.doubleClickZoom.disable();
 
-//  Leaflet Plugins ----------------------------------------------------------------------------------------------------
 // Measurement ---------------------------------------------------------------------------------------------------------
 const drawnItems = new L.FeatureGroup().addTo(map);
 
@@ -142,13 +212,7 @@ for (const key in mainLayers) {
                 getFeatureId: (feature) => feature.properties.cadnum,
                 vectorTileLayerStyles: {
                     cadastre: (properties, zoom) => {
-                        if (properties.ownership_code.indexOf(paramsFilter.nullOwnership) === 0) {
-                            return createStyle(layerConfig.color, 0.4);
-                        } else if (properties.ownership_code.indexOf(paramsFilter.privateOwnership) === 0) {
-                            return createStyle(layerConfig.color, 0.4);
-                        } else if (properties.ownership_code.indexOf(paramsFilter.communalOwnership) === 0) {
-                            return createStyle(layerConfig.color, 0.4);
-                        } else if (properties.ownership_code.indexOf(paramsFilter.stateOwnership) === 0) {
+                        if (filterByParameters(properties, paramsFilter)) {
                             return createStyle(layerConfig.color, 0.4);
                         } else {
                             return [];
@@ -258,12 +322,12 @@ var overLayers = [
     {
         group: "Форма власності",
         collapsed: true,
-        layers: [
-            { name: "Не визначено", layer: new L.Layer(),   id: "nullOwnershipCheckbox" },
-            { name: "Приватна",     layer: new L.Layer(),   id: "privateOwnershipCheckbox" },
-            { name: "Комунальна",   layer: new L.Layer(),   id: "communalOwnershipCheckbox" },
-            { name: "Державна",     layer: new L.Layer(),   id: "stateOwnershipCheckbox" }
-        ]
+        layers: createCheckbox(testParams.ownership)
+    },
+    {
+        group: "Цільове призначення",
+        collapsed: true,
+        layers: createCheckbox(testParams.purpose)
     }
 ]
 
@@ -285,6 +349,19 @@ map.addControl(panelLayers);
         version: '1.1.0',
         zIndex: 3,
     }).addTo(map);
+});
+
+//  Create Filter ------------------------------------------------------------------------------------------------------
+createFilter(testParams.ownership)
+createFilter(testParams.purpose)
+
+//  OwnershipCheckbox checked ------------------------------------------------------------------------------------------
+document.addEventListener('DOMContentLoaded', function() {
+    let elements = document.querySelectorAll('[id$="CustomParameterCheckbox"]');
+
+    elements.forEach(function(element) {
+        element.checked = true;
+    });
 });
 
 //  Search cadnum in .db -----------------------------------------------------------------------------------------------
@@ -324,27 +401,5 @@ $(document).ready(function() {
         } catch (error) {
             console.error('Error fetching parcel data:', error);
         }
-    });
-});
-
-//  Create Filter ------------------------------------------------------------------------------------------------------
-for (const filter in paramsFilter) {
-    $('body').on('change', 'input[id="' + filter + 'Checkbox"]', function () {
-        if ($(this).is(':checked')) {
-            paramsFilter[filter] = mainParams[filter];
-        } else {
-            paramsFilter[filter] = null;
-        };
-
-        mainLayers.cadastre.overlay.redraw();
-    });
-};
-
-//  OwnershipCheckbox checked ------------------------------------------------------------------------------------------
-document.addEventListener('DOMContentLoaded', function() {
-    let elements = document.querySelectorAll('[id$="OwnershipCheckbox"]');
-
-    elements.forEach(function(element) {
-        element.checked = true;
     });
 });
