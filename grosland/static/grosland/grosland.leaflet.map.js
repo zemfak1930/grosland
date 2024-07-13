@@ -440,6 +440,21 @@ loadData().then(() => {
                             },
                         }],
                     }).getBounds());
+
+                    //  Create polyline around land plots --------------------------------------------------------------
+                    let falsePolylineCoordinates = coordinates.get(cadnum)[0][0];
+                    let truePolylineCoordinates = [];
+
+                    for (let i = 0; i < falsePolylineCoordinates.length; i++) {
+                        truePolylineCoordinates.push(
+                            [ falsePolylineCoordinates[i][1], falsePolylineCoordinates[i][0] ]
+                        );
+                    }
+
+                    L.polyline(truePolylineCoordinates, {
+                        color: 'red',
+                    }).addTo(map);
+
                 } else {
                     window.alert('Земельна ділянка з кадастровим номером ' + cadnum + ' відсутня.');
                 };
