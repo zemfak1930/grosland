@@ -14,7 +14,7 @@ from sqlalchemy import ForeignKey, Column, String, Integer, DECIMAL, Boolean, Da
 from sqlalchemy.orm import DeclarativeBase, relationship, backref, declared_attr
 
 
-__all__ = ["Base", "Users", "Roles", "History", "Revision", "Land", "Updates"]
+__all__ = ["Base", "Users", "Roles", "History", "Land", "Updates", "ASCM"]
 
 for key, value in main_dictionary.items():
     __all__.extend([_ for _ in value])
@@ -44,7 +44,7 @@ class CodeDescMixin:
         return self.desc
 
 
-class GeometryMixin:
+class MultipolygonMixin:
     """
         Base parameters for all polygonal objects.
     """
@@ -84,6 +84,17 @@ class GeometryMixin:
 
     def __str__(self):
         return str(self.id) + " - " + str(self.area) + " га"
+
+
+class PointMixin:
+    """
+        Base parameters for all points objects.
+    """
+    geometry = Column(Geometry(geometry_type="POINT", srid=4326), nullable=False)
+    color = Column(String(10), nullable=False)
+
+    def __str__(self):
+        return str(self.id)
 
 
 class ParametersMixin:
@@ -162,16 +173,6 @@ class History(Base):
         return relationship("Users", backref=backref(self.__tablename__, lazy="dynamic"))
 
 
-class Revision(Base):
-    """
-        Land plots revision date.
-    """
-    date = Column(Date, unique=True, nullable=False)
-
-    def __str__(self):
-        return self.date
-
-
 class Updates(Base):
     """
         Model for storing data about the latest updates on the site.
@@ -188,11 +189,14 @@ class Updates(Base):
 #   ATU / Layers / Parameters ------------------------------------------------------------------------------------------
 for key, value in main_dictionary.items():
 
-    if key == "Atu":
-        other_mixins = "GeometryMixin, CodeDescMixin"
+    if key == "ATU":
+        other_mixins = "MultipolygonMixin, CodeDescMixin"
 
-    elif key == "Layers":
-        other_mixins = "GeometryMixin, ParametersMixin"
+    elif key == "Multipolygon":
+        other_mixins = "MultipolygonMixin, ParametersMixin"
+
+    elif key == "Point":
+        other_mixins = "CodeDescMixin, PointMixin"
 
     elif key == "Parameters":
         other_mixins = "CodeDescMixin"

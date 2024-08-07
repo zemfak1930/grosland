@@ -45,7 +45,7 @@ security = Security(app, datastore)
 
 #   Flask-Admin --------------------------------------------------------------------------------------------------------
 admin = Admin(app, index_view=AdminView())
-main_dictionary.update({"Main": ("Users", "History", "Revision", "Updates")})
+main_dictionary.update({"Main": ("Users", "Roles", "History", "Updates")})
 
 for key, value in main_dictionary.items():
     for _ in value:

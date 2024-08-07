@@ -22,7 +22,7 @@ const createStyle = (desiredFillColor, desiredOpacity) => ({
 });
 
 function saveHistory(message) {
-    fetch('/journal/search_history/', {
+    fetch('/api/history', {
         method: 'POST',
         body: message,
     }).catch(error => console.error('Error saving history:', error));
@@ -30,7 +30,7 @@ function saveHistory(message) {
 
 const polygonAction = async (data, method) => {
     try {
-        const response = await fetch('/api/lands', {
+        const response = await fetch('/cadastral_map/parcels', {
             method: method,
             headers: {
                 'Content-Type': 'application/json'
@@ -131,7 +131,7 @@ const filterByParameters = (properties, testList1) => {
 async function loadData() {
   try {
     //  Retrieving user data -------------------------------------------------------------------------------------------
-    const userResponse = await fetch('/api/email');
+    const userResponse = await fetch('/api/user');
     const userData = await userResponse.json();
     myVariable = userData.email;
 
@@ -420,7 +420,7 @@ loadData().then(() => {
 
             try {
                 if (!coordinates.has(cadnum)) {
-                    const response = await fetch('/api/parcels/' + cadnum);
+                    const response = await fetch('/cadastral_map/parcels/' + cadnum);
                     if (response.ok) {
                         const data = await response.json();
                         coordinates.set(cadnum, data.features[0].geometry.coordinates);

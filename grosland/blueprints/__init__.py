@@ -1,2 +1,3 @@
 from .api import api
-from .journal import journal
+from .cadastral_map import cadastral_map
+from .ascm_map import ascm_map

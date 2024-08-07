@@ -1,5 +1,6 @@
 main_dictionary = {
-    "Atu": ("State", "District", "Council", "Village"),
-    "Layers": ("Cadastre", "Archive", "Land"),
+    "ATU": ("State", "District", "Council", "Village"),
+    "Multipolygon": ("Cadastre", "Archive", "Land"),
+    "Point": ("ASCM",),
     "Parameters": ("Ownership", "Category", "Purpose"),
 }

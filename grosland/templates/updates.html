@@ -1,24 +1,71 @@
 {% extends "base.html" %}
 
 {% block title %}
-    Історія оновлень
+    Updates
 {% endblock title %}
 
 {% block link %}
-    <!--  My .css  -->
-    <link href="/static/grosland/grosland.updates.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            padding: 20px 0;
+        }
+        .update {
+            background: #fff;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+        }
+        .update-content {
+            flex: 1;
+            padding-right: 20px;
+        }
+        .update h2 {
+            color: #333;
+            margin-top: 0;
+        }
+        .update p {
+            color: #666;
+            line-height: 1.6;
+        }
+        .update img {
+            height: auto;
+            border-radius: 8px;
+            width: 400px;
+            height: 200px;
+            object-fit: cover;
+        }
+        .update strong {
+            color: #333;
+        }
+    </style>
 {% endblock link %}
 
 {% block content %}
     {% include 'navbar.html' %}
 
-    <h1>Оновлення</h1>
+    <h1>History of updates</h1>
     <div>
         {% for update in updates %}
             <div class="update">
                 <div class="update-content">
                     <h2>{{ update.title }}</h2>
-                    <p><strong>Дата:</strong> {{ update.date.strftime('%d.%m.%Y %H:%M:%S') }}</p>
+                    <p><strong>Date:</strong> {{ update.date.strftime('%d.%m.%Y %H:%M:%S') }}</p>
                     <p>{{ update.content }}</p>
                 </div>
                 {% if update.image_url %}

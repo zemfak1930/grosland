@@ -1,53 +1,63 @@
 {% extends "base.html" %}
 
 {% block title %}
-    Карта
+    Home
 {% endblock title %}
 
 {% block link %}
-    <!--  Leaflet  -->
-    <link href="/static/leaflet/leaflet.css" rel="stylesheet">
-    <script src="/static/leaflet/leaflet.js" defer></script>
-
-    <!--  Jquery  -->
-    <script src="/static/jquery/jquery.3.7.1.min.js" defer></script>
-    <script src="/static/jquery/jquery.maskedinput.min.js" defer></script>
-
-    <!--  My .css  -->
-    <link href="/static/grosland/grosland.leaflet.map.css" rel="stylesheet">
-
-    <!--  Leaflet Vector Grid  -->
-    <script src="/static/vectorgrid/leaflet.vectorgrid.mins.js" defer></script>
-
-    <!--  Restore View  -->
-    <script src="/static/restoreview/leaflet.restoreview.js" defer></script>
-
-    <!--  Easy Print  -->
-    <script src="/static/easyprint/leaflet.easyprint.js" defer></script>
-
-    <!--  Locate  -->
-    <link href="/static/locate/leaflet.locate.min.css" rel="stylesheet">
-    <script src="/static/locate/leaflet.locate.min.js" defer></script>
-
-    <!--  Leaflet Draw JavaScript  -->
-    <link href="/static/draw/leaflet.draw.css" rel="stylesheet">
-    <script src="/static/draw/leaflet.draw.js" defer></script>
-
-    <!--  Leaflet Panel-Layers  -->
-    <link href="/static/panel-layers/leaflet.panel-layers.css" rel="stylesheet">
-    <script src="/static/panel-layers/leaflet.panel-layers.js" defer></script>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 95%;
+        }
+        .full-height {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            text-align: center;
+        }
+        .button {
+            background-color: #000000;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 10px 5px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .button:hover {
+            background-color: #333333;
+        }
+    </style>
 {% endblock link %}
 
 {% block content %}
     <!--  Navbar  -->
     {% include 'navbar.html' %}
 
-    <!--  Map  -->
-    <div id="map"></div>
+    <div class="full-height">
+        <div class="content">
+            <div class="container">
+                <a class="button" href="{{ url_for('cadastral_map.index') }}">Cadastral map</a>
+                <a class="button" href="{{ url_for('ascm_map.index') }}">ASCM map</a>
+            </div>
+        </div>
+    </div>
+
 {% endblock %}
 
-{% block script %}
-    <!--  My .js  -->
-    <script src="/static/grosland/grosland.leaflet.map.js"defer></script>
-    <script src="/static/grosland/grosland.jquery.maskedinput.cadnum.js" defer></script>
-{% endblock %}
+{% block script %}{% endblock %}

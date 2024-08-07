@@ -21,7 +21,7 @@ from wtforms import StringField, TextAreaField
 from wtforms.validators import DataRequired
 
 
-__all__ = ["AdminView", "UsersView", "HistoryView", "RevisionView", "UpdatesView"]
+__all__ = ["AdminView", "UsersView", "RolesView", "HistoryView", "UpdatesView"]
 
 for key, value in main_dictionary.items():
     __all__.extend([_ + "View" for _ in value])
@@ -63,6 +63,10 @@ class UsersView(ModelView):
     form_columns = ("active", "name", "surname", "email", "password", "tel", "roles",)
 
 
+class RolesView(ModelView):
+    pass
+
+
 class HistoryView(ModelView):
     """
         Displaying user login and search history.
@@ -73,13 +77,6 @@ class HistoryView(ModelView):
     column_default_sort = ("date", True,)
     column_list = ("user.surname", "user", "message", "user_ip", "date",)
     column_searchable_list = ("message",)
-
-
-class RevisionView(ModelView):
-    """
-        Displaying land plot revision date.
-    """
-    pass
 
 
 class UpdatesForm(FlaskForm):
@@ -152,4 +149,4 @@ for key, value in main_dictionary.items():
 
     for _ in value:
         exec(f"class {_}View(ModelView):\n\t"
-             f"{attributes if key == 'Layers' else 'pass'}")
+             f"{attributes if key == 'Multipolygon' else 'pass'}")

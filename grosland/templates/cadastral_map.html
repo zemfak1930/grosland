@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Cadastral map
+{% endblock title %}
+
+{% block link %}
+    <!--  Leaflet  -->
+    <link href="/static/leaflet/leaflet.css" rel="stylesheet">
+    <script src="/static/leaflet/leaflet.js" defer></script>
+
+    <!--  Jquery  -->
+    <script src="/static/jquery/jquery.3.7.1.min.js" defer></script>
+    <script src="/static/jquery/jquery.maskedinput.min.js" defer></script>
+
+    <!--  Leaflet Vector Grid  -->
+    <script src="/static/vectorgrid/leaflet.vectorgrid.mins.js" defer></script>
+
+    <!--  Restore View  -->
+    <script src="/static/restoreview/leaflet.restoreview.js" defer></script>
+
+    <!--  Easy Print  -->
+    <script src="/static/easyprint/leaflet.easyprint.js" defer></script>
+
+    <!--  Locate  -->
+    <link href="/static/locate/leaflet.locate.min.css" rel="stylesheet">
+    <script src="/static/locate/leaflet.locate.min.js" defer></script>
+
+    <!--  Leaflet Draw JavaScript  -->
+    <link href="/static/draw/leaflet.draw.css" rel="stylesheet">
+    <script src="/static/draw/leaflet.draw.js" defer></script>
+
+    <!--  Leaflet Panel-Layers  -->
+    <link href="/static/panel-layers/leaflet.panel-layers.css" rel="stylesheet">
+    <script src="/static/panel-layers/leaflet.panel-layers.js" defer></script>
+
+    <!--  CSS style  -->
+    <style>
+        html, body {
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        #navbar {
+            height: 8%;
+        }
+        #input {
+            width: 20%;
+            min-width: 250px;
+            max-width: 250px;
+        }
+        #map {
+            width: 100%;
+            height: 92%;
+            position: relative;
+            cursor: auto;
+        }
+    </style>
+{% endblock link %}
+
+{% block content %}
+    <!--  Navbar  -->
+    {% include 'navbar.html' %}
+
+    <!--  Map  -->
+    <div id="map"></div>
+{% endblock %}
+
+{% block script %}
+    <!--  My .js  -->
+    <script src="/static/grosland/grosland.leaflet.cadastral_map.js"defer></script>
+    <script src="/static/grosland/grosland.jquery.maskedinput.cadnum.js" defer></script>
+{% endblock %}
