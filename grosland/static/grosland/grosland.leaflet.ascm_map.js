@@ -31,7 +31,7 @@ ascm = L.vectorGrid.protobuf(
         vectorTileLayerStyles: {
             ascm: (properties, zoom) => {
                 return {
-                    color: 'red',
+                    color: properties.color,
                     fill: true,
                     radius: 10.1, //  You should use a radius bigger than 10!
                 }
