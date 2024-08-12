@@ -1,23 +1,21 @@
 import datetime
-
 from flask import request
-
 from flask_security import UserMixin, RoleMixin, hash_password, current_user
-
 from geoalchemy2 import Geometry
-
-from grosland.dictionary import main_dictionary
-
 from shapely.wkb import loads
-
-from sqlalchemy import ForeignKey, Column, String, Integer, DECIMAL, Boolean, Date, DateTime, event
+from sqlalchemy import ForeignKey, Column, String, Integer, DECIMAL, Boolean, DateTime, event
 from sqlalchemy.orm import DeclarativeBase, relationship, backref, declared_attr
 
 
-__all__ = ["Base", "Users", "Roles", "History", "Land", "Updates", "ASCM"]
-
-for key, value in main_dictionary.items():
-    __all__.extend([_ for _ in value])
+__all__ = [
+    "Base",
+    "Users", "Roles",
+    "Ownership", "Category", "Purpose",
+    "State", "District", "Council", "Village",
+    "Cadastre", "Archive", "Land",
+    "ASCM",
+    "History", "Updates"
+]
 
 
 #   Base ---------------------------------------------------------------------------------------------------------------
@@ -122,6 +120,7 @@ class ParametersMixin:
     def __str__(self):
         return self.cadnum
 
+
 #   Users --------------------------------------------------------------------------------------------------------------
 class Users(Base, UserMixin):
     """
@@ -159,6 +158,88 @@ class UsersRoles(Base):
     role_id = Column("role_id", Integer, ForeignKey("roles.id"))
 
 
+#   Parameters  --------------------------------------------------------------------------------------------------------
+class Ownership(Base, CodeDescMixin):
+    """
+        Forms of lot ownership.
+    """
+    pass
+
+
+class Category(Base, CodeDescMixin):
+    """
+        Category of land lots.
+    """
+    pass
+
+
+class Purpose(Base, CodeDescMixin):
+    """
+        Lot use designation.
+    """
+    pass
+
+
+#   ATU ----------------------------------------------------------------------------------------------------------------
+class State(Base, MultipolygonMixin, CodeDescMixin):
+    """
+        States of Ukraine.
+    """
+    pass
+
+
+class District(Base, MultipolygonMixin, CodeDescMixin):
+    """
+        Districts of Ukraine.
+    """
+    pass
+
+
+class Council(Base, MultipolygonMixin, CodeDescMixin):
+    """
+        Councils of Ukraine.
+    """
+    pass
+
+
+class Village(Base, MultipolygonMixin, CodeDescMixin):
+    """
+        Villages of Ukraine.
+    """
+    pass
+
+
+#   Lots    ------------------------------------------------------------------------------------------------------------
+class Cadastre(Base, MultipolygonMixin, ParametersMixin):
+    """
+        The current cadastral information.
+    """
+    pass
+
+
+class Archive(Base, MultipolygonMixin, ParametersMixin):
+    """
+        The archive cadastral information.
+    """
+    pass
+
+
+class Land(Base, MultipolygonMixin, ParametersMixin):
+    """
+        User's custom polygons.
+    """
+    pass
+
+
+#   Points  ------------------------------------------------------------------------------------------------------------
+class ASCM(Base, CodeDescMixin, PointMixin):
+    """
+        Alberta Survey Control Marker.
+    """
+    pass
+
+
+#   Auxiliary classes   ------------------------------------------------------------------------------------------------
 class History(Base):
     """
         The model is needed to track the history of site visits and search by users.
@@ -184,25 +265,6 @@ class Updates(Base):
 
     def __str__(self):
         return self.title
-
-
-#   ATU / Layers / Parameters ------------------------------------------------------------------------------------------
-for key, value in main_dictionary.items():
-
-    if key == "ATU":
-        other_mixins = "MultipolygonMixin, CodeDescMixin"
-
-    elif key == "Multipolygon":
-        other_mixins = "MultipolygonMixin, ParametersMixin"
-
-    elif key == "Point":
-        other_mixins = "CodeDescMixin, PointMixin"
-
-    elif key == "Parameters":
-        other_mixins = "CodeDescMixin"
-
-    for _ in value:
-        exec(f"class {_}(Base, {other_mixins}): pass")
 
 
 #   Event --------------------------------------------------------------------------------------------------------------

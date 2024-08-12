@@ -1,30 +1,26 @@
 from flask import redirect, url_for, request
-
 from flask_admin import AdminIndexView
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.form import BaseForm
-
 from flask_security import current_user
-
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
-
-from grosland.dictionary import main_dictionary
-
 from markupsafe import Markup
-
 import os
-
 import uuid
-
 from wtforms import StringField, TextAreaField
 from wtforms.validators import DataRequired
 
 
-__all__ = ["AdminView", "UsersView", "RolesView", "HistoryView", "UpdatesView"]
-
-for key, value in main_dictionary.items():
-    __all__.extend([_ + "View" for _ in value])
+__all__ = [
+    "AdminView",
+    "UsersView", "RolesView",
+    "OwnershipView", "CategoryView", "PurposeView",
+    "StateView", "DistrictView", "CouncilView", "VillageView",
+    "CadastreView", "ArchiveView", "LandView",
+    "ASCMView",
+    "UpdatesView", "HistoryView"
+]
 
 
 #   Base ---------------------------------------------------------------------------------------------------------------
@@ -36,6 +32,16 @@ class BaseUsersForm(BaseForm):
         super().populate_obj(user)
         if user.fs_uniquifier is None:
             user.fs_uniquifier = uuid.uuid4().hex
+
+
+#   Mixins  ------------------------------------------------------------------------------------------------------------
+class UpdatesForm(FlaskForm):
+    """
+        Base form for class UpdatesView.
+    """
+    title = StringField('Title', validators=[DataRequired()])
+    content = TextAreaField('Content', validators=[DataRequired()])
+    image = FileField('Image', validators=[FileAllowed(['jpg', 'png'], 'Images only!')])
 
 
 #   Admin --------------------------------------------------------------------------------------------------------------
@@ -67,27 +73,55 @@ class RolesView(ModelView):
     pass
 
 
-class HistoryView(ModelView):
-    """
-        Displaying user login and search history.
-    """
-    can_create = False
-    can_edit = False
-
-    column_default_sort = ("date", True,)
-    column_list = ("user.surname", "user", "message", "user_ip", "date",)
-    column_searchable_list = ("message",)
+#   Parameters  --------------------------------------------------------------------------------------------------------
+class OwnershipView(ModelView):
+    pass
 
 
-class UpdatesForm(FlaskForm):
-    """
-        Base form for class UpdatesView.
-    """
-    title = StringField('Title', validators=[DataRequired()])
-    content = TextAreaField('Content', validators=[DataRequired()])
-    image = FileField('Image', validators=[FileAllowed(['jpg', 'png'], 'Images only!')])
+class CategoryView(ModelView):
+    pass
 
 
+class PurposeView(ModelView):
+    pass
+
+
+#   ATU ----------------------------------------------------------------------------------------------------------------
+class StateView(ModelView):
+    pass
+
+
+class DistrictView(ModelView):
+    pass
+
+
+class CouncilView(ModelView):
+    pass
+
+
+class VillageView(ModelView):
+    pass
+
+
+#   Lots    ------------------------------------------------------------------------------------------------------------
+class CadastreView(ModelView):
+    pass
+
+
+class ArchiveView(ModelView):
+    pass
+
+
+class LandView(ModelView):
+    pass
+
+
+#   Points  ------------------------------------------------------------------------------------------------------------
+class ASCMView(ModelView):
+    pass
+
+
+#   Auxiliary classes   ------------------------------------------------------------------------------------------------
 class UpdatesView(ModelView):
     """
         Displaying website updates.
@@ -139,14 +173,9 @@ class UpdatesView(ModelView):
                 print(f"Failed to remove file: {e}")
 
 
-#   ATU / Layers / Parameters ------------------------------------------------------------------------------------------
-for key, value in main_dictionary.items():
-    attributes = """
-        column_list = ("id", "cadnum", "area", "ownership", "purpose", "address",)\n
-        form_columns = ("cadnum", "area", "ownership", "purpose", "address",)\n
-        column_searchable_list = ("cadnum",)
+class HistoryView(ModelView):
     """
-
-    for _ in value:
-        exec(f"class {_}View(ModelView):\n\t"
-             f"{attributes if key == 'Multipolygon' else 'pass'}")
+        Displaying user login and search history.
+    """
+    can_create = False
+    can_edit = False

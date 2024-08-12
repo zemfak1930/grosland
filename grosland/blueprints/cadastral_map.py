@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, abort, jsonify, request
+from flask import Blueprint, render_template, abort, jsonify, request, Response
 from flask_security import login_required, roles_required, current_user
 from grosland.app import cache, session
 from grosland.models import Cadastre, Archive, Land, Ownership, Purpose
@@ -100,7 +100,7 @@ def add_polygon():
     session.add(new_polygon)
     session.commit()
 
-    return "200"
+    return Response(status=200)
 
 
 #   DELETE Polygon data ------------------------------------------------------------------------------------------------
@@ -116,6 +116,6 @@ def delete_polygon():
         session.delete(land)
         session.commit()
 
-        return "200"
+        return Response(status=200)
 
     abort(404)
